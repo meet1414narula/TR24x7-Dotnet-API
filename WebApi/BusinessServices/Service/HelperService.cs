@@ -46,8 +46,9 @@ namespace BusinessServices
             var vehicleTypes = _unitOfWork.VehicleTypeRepository.GetAll().ToList();
             var enquiryStatus = _unitOfWork.EnquiryStatusRepository.GetAll().ToList();
             var userTypes = _unitOfWork.UserTypeRepository.GetAll().ToList();
-          //  var userProfessions = _unitOfWork.GenericRepository<UserProfession>().GetAll().ToList();
-           // var vehicleCompanies = _unitOfWork.GenericRepository<VehicleCompany>().GetAll().ToList();
+            var roadLines = _unitOfWork.RoadLineRepository.GetAll().ToList();
+            //  var userProfessions = _unitOfWork.GenericRepository<UserProfession>().GetAll().ToList();
+            // var vehicleCompanies = _unitOfWork.GenericRepository<VehicleCompany>().GetAll().ToList();
             var materialTypes = _unitOfWork.MaterialTypeRepository.GetAll().ToList();
             var configKeyValue = _unitOfWork.ConfigKeyValueRepository.GetAll().ToList();
             var cities = _unitOfWork.CityRepository.GetMany(x => x.IsActive == true).ToList();
@@ -161,6 +162,21 @@ namespace BusinessServices
                 }
                 ));
             }
+
+            if (roadLines != null && roadLines.Count > 0)
+            {
+                staticDataEntity.RoadLines = new List<RoadLineEntity>();
+                staticDataEntity.RoadLines.AddRange(roadLines.OrderBy(x => x.DisplayOrder).OrderBy(x=>x.Rank).Select(x =>
+                {
+                    return new RoadLineEntity
+                    {
+                        Id = Convert.ToInt32(x.RoadLinePID),
+                        Name = x.Name
+                    };
+                }
+                ));
+            }
+
             staticDataEntity.SupportNumber = ConfigurationManager.AppSettings[GenericConstant.SUPPORT_NUMBER];
 
             return staticDataEntity;

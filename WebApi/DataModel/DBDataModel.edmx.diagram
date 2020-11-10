@@ -44,6 +44,12 @@
         <EntityTypeShape EntityType="DBModel.Quotation" Width="1.5" PointX="13.5" PointY="8.625" />
         <AssociationConnector Association="DBModel.FK_Quotation_Booking" />
         <AssociationConnector Association="DBModel.FK_Enquiry_Quotation" />
+        <EntityTypeShape EntityType="DBModel.Contact_RoadLine_Mapping" Width="1.5" PointX="8.25" PointY="17.75" />
+        <EntityTypeShape EntityType="DBModel.RoadLine" Width="1.5" PointX="6" PointY="34.625" />
+        <AssociationConnector Association="DBModel.FK_RoadLine_Contact_RoadLine_Mapping" />
+        <EntityTypeShape EntityType="DBModel.Contact" Width="1.5" PointX="3" PointY="17.125" />
+        <AssociationConnector Association="DBModel.FK_Contact_Contact_RoadLine_Mapping" />
+        <AssociationConnector Association="DBModel.FK_UserType_Contact" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -5,6 +5,9 @@ namespace DataModel.UnitOfWork
     public interface IUnitOfWork
     {
         #region Properties
+        GenericRepository<Contact> ContactRepository { get; }
+        GenericRepository<RoadLine> RoadLineRepository { get; }
+        GenericRepository<Contact_RoadLine_Mapping> ContactRoadLineMappingRepository { get; }
         GenericRepository<Good> GoodsRepository { get; }
         GenericRepository<Enquiry> EnquiryRepository { get; }
         GenericRepository<EnquiryStatu> EnquiryStatusRepository { get; }

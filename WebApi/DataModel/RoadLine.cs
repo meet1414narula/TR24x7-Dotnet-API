@@ -12,22 +12,21 @@ namespace DataModel
     using System;
     using System.Collections.Generic;
     
-    public partial class UserType
+    public partial class RoadLine
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public UserType()
+        public RoadLine()
         {
-            this.Users = new HashSet<User>();
-            this.Contacts = new HashSet<Contact>();
+            this.Contact_RoadLine_Mapping = new HashSet<Contact_RoadLine_Mapping>();
         }
     
-        public int UserTypePID { get; set; }
-        public string Type { get; set; }
-        public string Description { get; set; }
+        public int RoadLinePID { get; set; }
+        public string Name { get; set; }
+        public Nullable<int> DisplayOrder { get; set; }
+        public Nullable<int> Rank { get; set; }
+        public Nullable<bool> IsActive { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<User> Users { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Contact> Contacts { get; set; }
+        public virtual ICollection<Contact_RoadLine_Mapping> Contact_RoadLine_Mapping { get; set; }
     }
 }

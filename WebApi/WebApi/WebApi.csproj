@@ -275,6 +275,7 @@
     <Compile Include="Controllers\AccountAutoController.cs" />
     <Compile Include="Controllers\BidController.cs" />
     <Compile Include="Controllers\BookingController.cs" />
+    <Compile Include="Controllers\ContactController.cs" />
     <Compile Include="Controllers\EnquiryController.cs" />
     <Compile Include="Controllers\QuotationController.cs" />
     <Compile Include="Controllers\HelperController.cs" />

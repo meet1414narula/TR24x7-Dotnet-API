@@ -20,6 +20,9 @@ namespace DataModel.UnitOfWork
 
         private readonly DBEntities _context = null;
 
+        private GenericRepository<Contact> _contactRepository;
+        private GenericRepository<RoadLine> _roadLineRepository;
+        private GenericRepository<Contact_RoadLine_Mapping> _contactRoadLineMappingRepository;
         private GenericRepository<OTP> _otpRepository;
         private GenericRepository<Good> _goodsRepository;
         private GenericRepository<Enquiry> _enquiryRepository;
@@ -44,6 +47,45 @@ namespace DataModel.UnitOfWork
         }
 
         #region Public Repository Creation properties...
+
+        /// <summary>
+        /// Get/Set Property for otp repository.
+        /// </summary>
+        public GenericRepository<Contact> ContactRepository
+        {
+            get
+            {
+                if (this._contactRepository == null)
+                    this._contactRepository = new GenericRepository<Contact>(_context);
+                return _contactRepository;
+            }
+        }
+
+        /// <summary>
+        /// Get/Set Property for user repository.
+        /// </summary>
+        public GenericRepository<RoadLine> RoadLineRepository
+        {
+            get
+            {
+                if (this._roadLineRepository == null)
+                    this._roadLineRepository = new GenericRepository<RoadLine>(_context);
+                return _roadLineRepository;
+            }
+        }
+
+        /// <summary>
+        /// Get/Set Property for user repository.
+        /// </summary>
+        public GenericRepository<Contact_RoadLine_Mapping> ContactRoadLineMappingRepository
+        {
+            get
+            {
+                if (this._contactRoadLineMappingRepository == null)
+                    this._contactRoadLineMappingRepository = new GenericRepository<Contact_RoadLine_Mapping>(_context);
+                return _contactRoadLineMappingRepository;
+            }
+        }
 
         /// <summary>
         /// Get/Set Property for otp repository.

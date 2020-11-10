@@ -9,6 +9,8 @@ namespace BusinessEntities
     {
         public List<string> VehicleLengths { get; set; }
 
+        public List<RoadLineEntity> RoadLines { get; set; }
+
         public List<EnquiryStatusEntity> EnquiryStatus { get; set; }
 
         public List<int> MaxWeights { get; set; }
@@ -26,6 +28,12 @@ namespace BusinessEntities
     {
         public int Id { get; set; }
         public string Type { get; set; }
+    }
+
+    public class RoadLineEntity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 
     public class EnquiryStatusEntity

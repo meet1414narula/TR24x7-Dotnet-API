@@ -42,7 +42,9 @@
   <ItemGroup>
     <Compile Include="ErrorEntity.cs" />
     <Compile Include="Request\BidRequestEntity.cs" />
+    <Compile Include="Request\ContactEntities.cs" />
     <Compile Include="Response\BidResponseEntity.cs" />
+    <Compile Include="Response\ContactResponseEntity.cs" />
     <Compile Include="Response\GoodsResponseEntity.cs" />
     <Compile Include="StaticDataEntity.cs" />
     <Compile Include="Request\GoodsRequestEntity.cs" />

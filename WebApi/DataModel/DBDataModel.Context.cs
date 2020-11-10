@@ -46,5 +46,8 @@ namespace DataModel
         public virtual DbSet<EnquiryStatu> EnquiryStatus { get; set; }
         public virtual DbSet<Booking> Bookings { get; set; }
         public virtual DbSet<Quotation> Quotations { get; set; }
+        public virtual DbSet<Contact_RoadLine_Mapping> Contact_RoadLine_Mapping { get; set; }
+        public virtual DbSet<RoadLine> RoadLines { get; set; }
+        public virtual DbSet<Contact> Contacts { get; set; }
     }
 }
