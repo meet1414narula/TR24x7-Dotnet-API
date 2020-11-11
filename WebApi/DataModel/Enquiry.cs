@@ -42,11 +42,12 @@ namespace DataModel
         public string LoadingCharges { get; set; }
         public string UnloadingCharges { get; set; }
         public string PackagingCharges { get; set; }
+        public string Comments { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Quotation> Quotations { get; set; }
         public virtual MaterialType MaterialType { get; set; }
         public virtual User User { get; set; }
         public virtual VehicleType VehicleType { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Quotation> Quotations { get; set; }
     }
 }

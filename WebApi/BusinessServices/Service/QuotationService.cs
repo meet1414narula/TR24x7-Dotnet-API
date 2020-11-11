@@ -110,6 +110,7 @@ namespace BusinessServices
         public long CreateQuotation(BusinessEntities.QuotationRequestEntity goodsEntity)
         {
             Quotation goods = null;
+            bool quotationFound = false;
            // _unitOfWork.Save();
             using (var scope = new TransactionScope())
             {
@@ -122,6 +123,10 @@ namespace BusinessServices
                 {
                     goods = new Quotation();
                 }
+                else
+                {
+                    quotationFound = true;
+                }
 
                 goods.EnquiryFID = goodsEntity.EnquiryId;
                 goods.ExpiryDate = expiryDate;// TimeZoneInfo.ConvertTimeFromUtc(goodsEntity.ValidTill.ToUniversalTime(), INDIAN_ZONE),
@@ -130,27 +135,34 @@ namespace BusinessServices
                 goods.IsActive = true;
                 goods.Status = goodsEntity.Status;
 
-                if (goodsEntity.Freight != 0)
+               // if (goodsEntity.Freight != 0)
                 {
                     goods.Freight = goodsEntity.Freight;
                 }
 
-                if (!string.IsNullOrEmpty(goodsEntity.LoadingCharges))
+                //if (!string.IsNullOrEmpty(goodsEntity.LoadingCharges))
                 {
                     goods.LoadingCharges = goodsEntity.LoadingCharges;
                 }
 
-                if (!string.IsNullOrEmpty(goodsEntity.UnloadingCharges))
+               // if (!string.IsNullOrEmpty(goodsEntity.UnloadingCharges))
                 {
                     goods.UnloadingCharges = goodsEntity.UnloadingCharges;
                 }
 
-                if (!string.IsNullOrEmpty(goodsEntity.PackagingCharges))
+               // if (!string.IsNullOrEmpty(goodsEntity.PackagingCharges))
                 {
                     goods.PackagingCharges = goodsEntity.PackagingCharges;
                 }
 
-                _unitOfWork.QuotationRepository.Insert(goods);
+                if (quotationFound)
+                {
+                    _unitOfWork.QuotationRepository.Update(goods);
+                }
+                else
+                {
+                    _unitOfWork.QuotationRepository.Insert(goods);
+                }
 
                 //update enquiry as well
                 var enq = _unitOfWork.EnquiryRepository.GetByID(goodsEntity.EnquiryId);
@@ -257,20 +269,22 @@ namespace BusinessServices
                             Freight = Convert.ToInt32(qt.Freight),
                             From = enquiry.From,
                             To = enquiry.To,
-                            FromAddress = string.IsNullOrEmpty(enquiry.FromAddress) ? enquiry.From:enquiry.FromAddress ,
-                            ToAddress = string.IsNullOrEmpty(enquiry.ToAddress) ? enquiry.To : enquiry.ToAddress,
+                            FromAddress = enquiry.FromAddress,// string.IsNullOrEmpty(enquiry.FromAddress) ? enquiry.From:enquiry.FromAddress ,
+                            ToAddress = enquiry.ToAddress,// string.IsNullOrEmpty(enquiry.ToAddress) ? enquiry.To : enquiry.ToAddress,
                             Name = enquiry.Name,
                             MobileNumber = Convert.ToString(enquiry.MobileNumber),
                             MinWeight = Convert.ToInt32(enquiry.MinWeight),
                             MaxWeight = Convert.ToInt32(enquiry.MaxWeight),
-                            MaterialType = enquiry.MaterialType.Type,
+                            MaterialType = enquiry.MaterialType.Type + (!string.IsNullOrEmpty(enquiry.Comments) ? " : " + enquiry.Comments : ""),
                             VehicleType = enquiry.VehicleType.Type,
                             //ImgVehicleType = GenericConstant.IMAGES_BASE_ADDRESS + x.VehicleType.Type.Replace(" ", "") + GenericConstant.IMG_EXT,
                             ImgVehicleType = enquiry.VehicleType.Type.ToLower().Replace(" ", ""),
                             VehicleLength = enquiry.VehicleLength,
                             Status = enquiry.Status,
                             ValidTill = enquiry.ExpiryDate,
-                            UserId = Convert.ToInt64(enquiry.UserFID)
+                            UserId = Convert.ToInt64(enquiry.UserFID),
+                            TotalCharges = GetTotalCharges(new List<string> { Convert.ToString(qt.Freight),qt.LoadingCharges,qt.UnloadingCharges,qt.PackagingCharges }),
+                            Comments = GetComments(new Dictionary<string, string> { {"Freight", Convert.ToString(qt.Freight) },{ "Loading", qt.LoadingCharges },{ "Unloading", qt.UnloadingCharges },{ "Packaging", qt.PackagingCharges } }),
                         };
                     }
                     else
@@ -287,20 +301,58 @@ namespace BusinessServices
                             MinWeight = Convert.ToInt32(enquiry.MinWeight),
                             MaxWeight = Convert.ToInt32(enquiry.MaxWeight),
                             Freight = Convert.ToInt32(enquiry.Freight),
-                            MaterialType = enquiry.MaterialType.Type,
+                            MaterialType = enquiry.MaterialType.Type + (!string.IsNullOrEmpty(enquiry.Comments)? " : "+enquiry.Comments:""),
                             VehicleType = enquiry.VehicleType.Type,
                             //ImgVehicleType = GenericConstant.IMAGES_BASE_ADDRESS + x.VehicleType.Type.Replace(" ", "") + GenericConstant.IMG_EXT,
                             ImgVehicleType = enquiry.VehicleType.Type.ToLower().Replace(" ", ""),
                             VehicleLength = enquiry.VehicleLength,
                             Status = enquiry.Status,
                             ValidTill = enquiry.ExpiryDate,
-                            UserId = Convert.ToInt64(enquiry.UserFID)
+                            UserId = Convert.ToInt64(enquiry.UserFID),
+                            TotalCharges = GetTotalCharges(new List<string> { Convert.ToString(qt.Freight), qt.LoadingCharges, qt.UnloadingCharges, qt.PackagingCharges }),
+                            Comments = GetComments(new Dictionary<string, string> { { "Freight", Convert.ToString(qt.Freight) }, { "Loading", qt.LoadingCharges }, { "Unloading", qt.UnloadingCharges }, { "Packaging", qt.PackagingCharges } }),
                         };
                     }
                 }
                 ));
             }
             return listGoodsEntity;
+        }
+
+        private string GetTotalCharges(List<string> charges)
+        {
+            long sum = 0;
+            foreach (var item in charges)
+            {
+                long price = 0;
+                sum = sum + (long.TryParse(item,out price) ? price : 0);
+            }
+
+            return Convert.ToString(sum);
+        }
+
+        private string GetComments(Dictionary<string,string> charges)
+        {
+            string comments = "Charges includes ";
+            foreach (var item in charges)
+            {
+                switch(item.Key)
+                {
+                    case "Freight": comments= comments + (!string.IsNullOrEmpty(item.Value)? "Freight, ":"");
+                        break;
+                    case "Loading":
+                        comments = comments + (!string.IsNullOrEmpty(item.Value) ? "Loading, " : "");
+                        break;
+                    case "Unloading":
+                        comments = comments + (!string.IsNullOrEmpty(item.Value) ? "Unoading, " : "");
+                        break;
+                    case "Packaging":
+                        comments = comments + (!string.IsNullOrEmpty(item.Value) ? "Packaging, " : "");
+                        break;
+                }
+            }
+
+            return comments;
         }
     }
 }

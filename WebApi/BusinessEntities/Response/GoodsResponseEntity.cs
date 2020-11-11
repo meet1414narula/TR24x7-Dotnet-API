@@ -28,6 +28,7 @@ namespace BusinessEntities
     public class EnquiryResponseEntity
     {
         public int EnquiryId { get; set; }
+        public string Comments { get; set; }
         public string From { get; set; }
         public string To { get; set; }
 
@@ -59,11 +60,14 @@ namespace BusinessEntities
 
     public class QuotationResponseEntity:EnquiryResponseEntity
     {
-        public string LoadingCharges { get; set; }
+        public string TotalCharges { get; set; }
 
-        public string UnloadingCharges { get; set; }
+        public string Comments { get; set; }
+        //public string LoadingCharges { get; set; }
 
-        public string PackagingCharges { get; set; }
+        //public string UnloadingCharges { get; set; }
+
+        //public string PackagingCharges { get; set; }
     }
 
 

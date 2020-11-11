@@ -38,6 +38,7 @@ namespace BusinessEntities
 
     public class EnquiryRequestEntity
     {
+        public string Comments { get; set; }
         public string Name { get; set; }
         public string From { get; set; }
         public string To { get; set; }

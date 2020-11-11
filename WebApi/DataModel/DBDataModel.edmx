@@ -135,6 +135,7 @@
           <Property Name="LoadingCharges" Type="varchar" MaxLength="100" />
           <Property Name="UnloadingCharges" Type="varchar" MaxLength="100" />
           <Property Name="PackagingCharges" Type="varchar" MaxLength="100" />
+          <Property Name="Comments" Type="varchar" MaxLength="1000" />
         </EntityType>
         <EntityType Name="EnquiryStatus">
           <Key>
@@ -760,29 +761,12 @@
           </AssociationSet>
           <EntitySet Name="OTPs" EntityType="DBModel.OTP" />
           <EntitySet Name="ConfigKeyValues" EntityType="DBModel.ConfigKeyValue" />
-          <EntitySet Name="Enquiries" EntityType="DBModel.Enquiry" />
-          <AssociationSet Name="FK_MaterialType_Enquiry" Association="DBModel.FK_MaterialType_Enquiry">
-            <End Role="MaterialType" EntitySet="MaterialTypes" />
-            <End Role="Enquiry" EntitySet="Enquiries" />
-          </AssociationSet>
-          <AssociationSet Name="FK_User_Enquiry" Association="DBModel.FK_User_Enquiry">
-            <End Role="User" EntitySet="Users" />
-            <End Role="Enquiry" EntitySet="Enquiries" />
-          </AssociationSet>
-          <AssociationSet Name="FK_VehicleType_Enquiry" Association="DBModel.FK_VehicleType_Enquiry">
-            <End Role="VehicleType" EntitySet="VehicleTypes" />
-            <End Role="Enquiry" EntitySet="Enquiries" />
-          </AssociationSet>
           <EntitySet Name="EnquiryStatus" EntityType="DBModel.EnquiryStatu" />
           <EntitySet Name="Bookings" EntityType="DBModel.Booking" />
           <EntitySet Name="Quotations" EntityType="DBModel.Quotation" />
           <AssociationSet Name="FK_Quotation_Booking" Association="DBModel.FK_Quotation_Booking">
             <End Role="Quotation" EntitySet="Quotations" />
             <End Role="Booking" EntitySet="Bookings" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Enquiry_Quotation" Association="DBModel.FK_Enquiry_Quotation">
-            <End Role="Enquiry" EntitySet="Enquiries" />
-            <End Role="Quotation" EntitySet="Quotations" />
           </AssociationSet>
           <EntitySet Name="Contact_RoadLine_Mapping" EntityType="DBModel.Contact_RoadLine_Mapping" />
           <EntitySet Name="RoadLines" EntityType="DBModel.RoadLine" />
@@ -798,6 +782,23 @@
           <AssociationSet Name="FK_UserType_Contact" Association="DBModel.FK_UserType_Contact">
             <End Role="UserType" EntitySet="UserTypes" />
             <End Role="Contact" EntitySet="Contacts" />
+          </AssociationSet>
+          <EntitySet Name="Enquiries" EntityType="DBModel.Enquiry" />
+          <AssociationSet Name="FK_Enquiry_Quotation" Association="DBModel.FK_Enquiry_Quotation">
+            <End Role="Enquiry" EntitySet="Enquiries" />
+            <End Role="Quotation" EntitySet="Quotations" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MaterialType_Enquiry" Association="DBModel.FK_MaterialType_Enquiry">
+            <End Role="MaterialType" EntitySet="MaterialTypes" />
+            <End Role="Enquiry" EntitySet="Enquiries" />
+          </AssociationSet>
+          <AssociationSet Name="FK_User_Enquiry" Association="DBModel.FK_User_Enquiry">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Enquiry" EntitySet="Enquiries" />
+          </AssociationSet>
+          <AssociationSet Name="FK_VehicleType_Enquiry" Association="DBModel.FK_VehicleType_Enquiry">
+            <End Role="VehicleType" EntitySet="VehicleTypes" />
+            <End Role="Enquiry" EntitySet="Enquiries" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="Address">
@@ -1200,73 +1201,6 @@
           <Property Name="Key" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="Value" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="Enquiry">
-          <Key>
-            <PropertyRef Name="EnquiryPID" />
-          </Key>
-          <Property Name="EnquiryPID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="From" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="To" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="FromAddress" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="ToAddress" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="Name" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
-          <Property Name="MobileNumber" Type="Int64" />
-          <Property Name="MinWeight" Type="Int32" />
-          <Property Name="MaxWeight" Type="Int32" />
-          <Property Name="Freight" Type="Int32" />
-          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="7" />
-          <Property Name="LastUpdated" Type="DateTime" Precision="7" />
-          <Property Name="ExpiryDate" Type="DateTime" Nullable="false" Precision="7" />
-          <Property Name="VehicleLength" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="IsActive" Type="Boolean" />
-          <Property Name="VehicleTypeFID" Type="Int32" />
-          <Property Name="MaterialTypeFID" Type="Int32" />
-          <Property Name="UserFID" Type="Int64" />
-          <Property Name="LoadingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="UnloadingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="PackagingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="MaterialType" Relationship="DBModel.FK_MaterialType_Enquiry" FromRole="Enquiry" ToRole="MaterialType" />
-          <NavigationProperty Name="User" Relationship="DBModel.FK_User_Enquiry" FromRole="Enquiry" ToRole="User" />
-          <NavigationProperty Name="VehicleType" Relationship="DBModel.FK_VehicleType_Enquiry" FromRole="Enquiry" ToRole="VehicleType" />
-          <NavigationProperty Name="Quotations" Relationship="DBModel.FK_Enquiry_Quotation" FromRole="Enquiry" ToRole="Quotation" />
-        </EntityType>
-        <Association Name="FK_MaterialType_Enquiry">
-          <End Type="DBModel.MaterialType" Role="MaterialType" Multiplicity="0..1" />
-          <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="MaterialType">
-              <PropertyRef Name="MaterialTypePID" />
-            </Principal>
-            <Dependent Role="Enquiry">
-              <PropertyRef Name="MaterialTypeFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_User_Enquiry">
-          <End Type="DBModel.User" Role="User" Multiplicity="0..1" />
-          <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="User">
-              <PropertyRef Name="UserPID" />
-            </Principal>
-            <Dependent Role="Enquiry">
-              <PropertyRef Name="UserFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_VehicleType_Enquiry">
-          <End Type="DBModel.VehicleType" Role="VehicleType" Multiplicity="0..1" />
-          <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="VehicleType">
-              <PropertyRef Name="VehicleTypePID" />
-            </Principal>
-            <Dependent Role="Enquiry">
-              <PropertyRef Name="VehicleTypeFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="EnquiryStatu">
           <Key>
             <PropertyRef Name="EnquiryStatusPID" />
@@ -1324,18 +1258,6 @@
             </Principal>
             <Dependent Role="Booking">
               <PropertyRef Name="QuotationFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Enquiry_Quotation">
-          <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="0..1" />
-          <End Type="DBModel.Quotation" Role="Quotation" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Enquiry">
-              <PropertyRef Name="EnquiryPID" />
-            </Principal>
-            <Dependent Role="Quotation">
-              <PropertyRef Name="EnquiryFID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1410,6 +1332,86 @@
             </Principal>
             <Dependent Role="Contact">
               <PropertyRef Name="UserTypeFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Enquiry">
+          <Key>
+            <PropertyRef Name="EnquiryPID" />
+          </Key>
+          <Property Name="EnquiryPID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="From" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="To" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="FromAddress" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="ToAddress" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="Name" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="MobileNumber" Type="Int64" />
+          <Property Name="MinWeight" Type="Int32" />
+          <Property Name="MaxWeight" Type="Int32" />
+          <Property Name="Freight" Type="Int32" />
+          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="LastUpdated" Type="DateTime" Precision="7" />
+          <Property Name="ExpiryDate" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="VehicleLength" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="VehicleTypeFID" Type="Int32" />
+          <Property Name="MaterialTypeFID" Type="Int32" />
+          <Property Name="UserFID" Type="Int64" />
+          <Property Name="LoadingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="UnloadingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="PackagingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Comments" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Quotations" Relationship="DBModel.FK_Enquiry_Quotation" FromRole="Enquiry" ToRole="Quotation" />
+          <NavigationProperty Name="MaterialType" Relationship="DBModel.FK_MaterialType_Enquiry" FromRole="Enquiry" ToRole="MaterialType" />
+          <NavigationProperty Name="User" Relationship="DBModel.FK_User_Enquiry" FromRole="Enquiry" ToRole="User" />
+          <NavigationProperty Name="VehicleType" Relationship="DBModel.FK_VehicleType_Enquiry" FromRole="Enquiry" ToRole="VehicleType" />
+        </EntityType>
+        <Association Name="FK_Enquiry_Quotation">
+          <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="0..1" />
+          <End Type="DBModel.Quotation" Role="Quotation" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Enquiry">
+              <PropertyRef Name="EnquiryPID" />
+            </Principal>
+            <Dependent Role="Quotation">
+              <PropertyRef Name="EnquiryFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MaterialType_Enquiry">
+          <End Type="DBModel.MaterialType" Role="MaterialType" Multiplicity="0..1" />
+          <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MaterialType">
+              <PropertyRef Name="MaterialTypePID" />
+            </Principal>
+            <Dependent Role="Enquiry">
+              <PropertyRef Name="MaterialTypeFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_User_Enquiry">
+          <End Type="DBModel.User" Role="User" Multiplicity="0..1" />
+          <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserPID" />
+            </Principal>
+            <Dependent Role="Enquiry">
+              <PropertyRef Name="UserFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_VehicleType_Enquiry">
+          <End Type="DBModel.VehicleType" Role="VehicleType" Multiplicity="0..1" />
+          <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="VehicleType">
+              <PropertyRef Name="VehicleTypePID" />
+            </Principal>
+            <Dependent Role="Enquiry">
+              <PropertyRef Name="VehicleTypeFID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1650,34 +1652,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Enquiries">
-            <EntityTypeMapping TypeName="DBModel.Enquiry">
-              <MappingFragment StoreEntitySet="Enquiry">
-                <ScalarProperty Name="PackagingCharges" ColumnName="PackagingCharges" />
-                <ScalarProperty Name="UnloadingCharges" ColumnName="UnloadingCharges" />
-                <ScalarProperty Name="LoadingCharges" ColumnName="LoadingCharges" />
-                <ScalarProperty Name="UserFID" ColumnName="UserFID" />
-                <ScalarProperty Name="MaterialTypeFID" ColumnName="MaterialTypeFID" />
-                <ScalarProperty Name="VehicleTypeFID" ColumnName="VehicleTypeFID" />
-                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="VehicleLength" ColumnName="VehicleLength" />
-                <ScalarProperty Name="ExpiryDate" ColumnName="ExpiryDate" />
-                <ScalarProperty Name="LastUpdated" ColumnName="LastUpdated" />
-                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
-                <ScalarProperty Name="Freight" ColumnName="Freight" />
-                <ScalarProperty Name="MaxWeight" ColumnName="MaxWeight" />
-                <ScalarProperty Name="MinWeight" ColumnName="MinWeight" />
-                <ScalarProperty Name="MobileNumber" ColumnName="MobileNumber" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="ToAddress" ColumnName="ToAddress" />
-                <ScalarProperty Name="FromAddress" ColumnName="FromAddress" />
-                <ScalarProperty Name="To" ColumnName="To" />
-                <ScalarProperty Name="From" ColumnName="From" />
-                <ScalarProperty Name="EnquiryPID" ColumnName="EnquiryPID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="EnquiryStatus">
             <EntityTypeMapping TypeName="DBModel.EnquiryStatu">
               <MappingFragment StoreEntitySet="EnquiryStatus">
@@ -1759,6 +1733,35 @@
                 <ScalarProperty Name="Mobile" ColumnName="Mobile" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="ContactPID" ColumnName="ContactPID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Enquiries">
+            <EntityTypeMapping TypeName="DBModel.Enquiry">
+              <MappingFragment StoreEntitySet="Enquiry">
+                <ScalarProperty Name="Comments" ColumnName="Comments" />
+                <ScalarProperty Name="PackagingCharges" ColumnName="PackagingCharges" />
+                <ScalarProperty Name="UnloadingCharges" ColumnName="UnloadingCharges" />
+                <ScalarProperty Name="LoadingCharges" ColumnName="LoadingCharges" />
+                <ScalarProperty Name="UserFID" ColumnName="UserFID" />
+                <ScalarProperty Name="MaterialTypeFID" ColumnName="MaterialTypeFID" />
+                <ScalarProperty Name="VehicleTypeFID" ColumnName="VehicleTypeFID" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="VehicleLength" ColumnName="VehicleLength" />
+                <ScalarProperty Name="ExpiryDate" ColumnName="ExpiryDate" />
+                <ScalarProperty Name="LastUpdated" ColumnName="LastUpdated" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="Freight" ColumnName="Freight" />
+                <ScalarProperty Name="MaxWeight" ColumnName="MaxWeight" />
+                <ScalarProperty Name="MinWeight" ColumnName="MinWeight" />
+                <ScalarProperty Name="MobileNumber" ColumnName="MobileNumber" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ToAddress" ColumnName="ToAddress" />
+                <ScalarProperty Name="FromAddress" ColumnName="FromAddress" />
+                <ScalarProperty Name="To" ColumnName="To" />
+                <ScalarProperty Name="From" ColumnName="From" />
+                <ScalarProperty Name="EnquiryPID" ColumnName="EnquiryPID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

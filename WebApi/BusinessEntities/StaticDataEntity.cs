@@ -28,6 +28,7 @@ namespace BusinessEntities
     {
         public int Id { get; set; }
         public string Type { get; set; }
+        public int DisplayOrder { get; set; }
     }
 
     public class RoadLineEntity
@@ -64,6 +65,8 @@ namespace BusinessEntities
     {
         public int Id { get; set; }
         public string Type { get; set; }
+
+        public int DisplayOrder { get; set; }
     }
 
     public class CityEntity

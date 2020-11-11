@@ -129,7 +129,8 @@ namespace BusinessServices
                     VehicleLength = goodsEntity.VehicleLength,
                     MaterialTypeFID = goodsEntity.MaterialType,
                     Status = goodsEntity.Status,
-                    UserFID = goodsEntity.UserId != 0 ? goodsEntity.UserId : userId
+                    UserFID = goodsEntity.UserId != 0 ? goodsEntity.UserId : userId,
+                    Comments = goodsEntity.Comments,
                 };
                 _unitOfWork.EnquiryRepository.Insert(goods);
                 _unitOfWork.Save();
@@ -172,6 +173,7 @@ namespace BusinessServices
                         goods.MaterialTypeFID = goodsEntity.MaterialType;
                         goods.Status = goodsEntity.Status;
                         goods.LastUpdated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                        goods.Comments = goodsEntity.Comments;
                         _unitOfWork.EnquiryRepository.Update(goods);
                         _unitOfWork.Save();
                         scope.Complete();
@@ -195,9 +197,13 @@ namespace BusinessServices
                 using (var scope = new TransactionScope())
                 {
                     var goods = _unitOfWork.EnquiryRepository.GetByID(goodsId);
+                    var quotations = _unitOfWork.QuotationRepository.GetMany(x=>x.EnquiryFID==goodsId);
                     if (goods != null)
                     {
-
+                        foreach (var item in quotations)
+                        {
+                            _unitOfWork.QuotationRepository.Delete(item);
+                        }
                         _unitOfWork.EnquiryRepository.Delete(goods);
                         _unitOfWork.Save();
                         scope.Complete();
@@ -237,7 +243,8 @@ namespace BusinessServices
                         VehicleLength = x.VehicleLength,
                         Status = x.Status,
                         ValidTill = x.ExpiryDate,
-                        UserId= Convert.ToInt64(x.UserFID)
+                        UserId= Convert.ToInt64(x.UserFID),
+                        Comments = x.Comments
                     };
                 }
                 ));

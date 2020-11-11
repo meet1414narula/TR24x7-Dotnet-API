@@ -60,6 +60,7 @@ namespace BusinessServices
             staticDataEntity.MaxWeights = Enumerable.Range(1, Convert.ToInt32(maxWeight.Value)).ToList();
 
             staticDataEntity.VehicleLengths = new List<string>();
+            staticDataEntity.VehicleLengths.Add("Any");
             for (int i = Convert.ToInt32(minLength.Value); i <= Convert.ToInt32(maxLength.Value); i++)
             {
                 staticDataEntity.VehicleLengths.Add(i + GenericConstant.FEET);
@@ -95,12 +96,13 @@ namespace BusinessServices
             if (vehicleTypes != null && vehicleTypes.Count > 0)
             {
                 staticDataEntity.VehicleTypes = new List<VehicleTypeEntity>();
-                staticDataEntity.VehicleTypes.AddRange(vehicleTypes.OrderBy(x => x.Type).Select(x =>
+                staticDataEntity.VehicleTypes.AddRange(vehicleTypes.OrderBy(x => x.Description).Select(x =>
                 {
                     return new VehicleTypeEntity
                     {
                         Id = x.VehicleTypePID,
-                        Type = x.Type
+                        Type = x.Type,
+                        DisplayOrder = Convert.ToInt32(x.Description),
                     };
                 }
                 ));
@@ -152,12 +154,13 @@ namespace BusinessServices
             if (materialTypes != null && materialTypes.Count > 0)
             {
                 staticDataEntity.MaterialTypes = new List<MaterialTypeEntity>();
-                staticDataEntity.MaterialTypes.AddRange(materialTypes.OrderBy(x => x.Type).Select(x =>
+                staticDataEntity.MaterialTypes.AddRange(materialTypes.OrderBy(x => x.Description).Select(x =>
                 {
                     return new MaterialTypeEntity
                     {
                         Id = Convert.ToInt32(x.MaterialTypePID),
-                        Type = x.Type
+                        Type = x.Type,
+                        DisplayOrder = Convert.ToInt32(x.Description)
                     };
                 }
                 ));
