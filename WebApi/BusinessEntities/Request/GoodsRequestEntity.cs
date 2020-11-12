@@ -68,6 +68,17 @@ namespace BusinessEntities
         public long UserId { get; set; }
     }
 
+    public class QuoteRequestEntity
+    {
+       
+        public string From { get; set; }
+        public string To { get; set; }
+        public string VehicleLength { get; set; }
+        public int MaterialType { get; set; }
+
+        public int MaxWeight { get; set; }
+
+    }
     public class QuotationRequestEntity
     {
         public int EnquiryId { get; set; }

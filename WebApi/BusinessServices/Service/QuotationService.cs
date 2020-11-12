@@ -73,13 +73,33 @@ namespace BusinessServices
         /// Fetches all the goodss.
         /// </summary>
         /// <returns></returns>
-        public List<BusinessEntities.QuotationResponseEntity> GetAllEnquiries()
+        public List<BusinessEntities.QuotationResponseEntity> GetAllQuotations()
         {
             var enquiries = _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x=>x.CreationDate).ToList();
             var quotations = _unitOfWork.QuotationRepository.GetMany(x=>x.Freight !=null && x.Freight !=0).OrderByDescending(x => x.CreationDate).ToList();
             if (enquiries.Any() && quotations.Any())
             {
                 return MapQuotations(enquiries,quotations);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Fetches all the goodss.
+        /// </summary>
+        /// <returns></returns>
+        public List<BusinessEntities.QuotationResponseEntity> GetAllQuotes(QuoteRequestEntity quotationRequestEntity)
+        {
+            var enquiries = _unitOfWork.EnquiryRepository.GetMany(x=>x.From.Equals(quotationRequestEntity.From,StringComparison.InvariantCultureIgnoreCase)  && x.To.Equals(quotationRequestEntity.To, StringComparison.InvariantCultureIgnoreCase)).OrderByDescending(x => x.CreationDate).ToList();
+            if(!string.IsNullOrEmpty(quotationRequestEntity.VehicleLength))
+            {
+                enquiries = enquiries.Where(x => x.VehicleLength.Equals(quotationRequestEntity.VehicleLength, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            }
+            var enquiryIds = enquiries.Select(x => x.EnquiryPID).ToList();
+            var quotations = _unitOfWork.QuotationRepository.GetMany(x=> enquiryIds.Contains(Convert.ToInt64(x.EnquiryFID))).OrderByDescending(x => x.CreationDate).ToList();
+            if (enquiries.Any() && quotations.Any())
+            {
+                return MapQuotations(enquiries, quotations);
             }
             return null;
         }

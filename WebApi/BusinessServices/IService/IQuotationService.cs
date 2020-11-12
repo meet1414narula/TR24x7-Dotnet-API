@@ -9,7 +9,9 @@ namespace BusinessServices
     public interface IQuotationService
     {
         QuotationResponseEntity GetGoods(int goodsId);
-        List<BusinessEntities.QuotationResponseEntity> GetAllEnquiries();
+        List<BusinessEntities.QuotationResponseEntity> GetAllQuotations();
+
+        List<BusinessEntities.QuotationResponseEntity> GetAllQuotes(QuoteRequestEntity quotationRequestEntity);
         List<GoodsResponseEntity> GetGoodsByUser(UserEntity userEntity);
         long CreateQuotation(BusinessEntities.QuotationRequestEntity goodsEntity);
         bool UpdateGoods(int goodsId,EnquiryRequestEntity goodsEntity);

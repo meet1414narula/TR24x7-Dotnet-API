@@ -36,7 +36,24 @@ namespace WebApi.Controllers
         [ActionName("GetAllQuotations")]
         public HttpResponseMessage GetAllQuotations()
         {
-            var enquiryEntities = _goodsServices.GetAllEnquiries();
+            var enquiryEntities = _goodsServices.GetAllQuotations();
+            if (enquiryEntities != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            // throw new Exception("Goods not found");
+        }
+
+        [HttpGet]
+        [HttpOptions]
+        [ActionName("GetQuotes")]
+        public HttpResponseMessage GetQuotes([FromUri]QuoteRequestEntity enquiryReqEntity)
+        {
+            var enquiryEntities = _goodsServices.GetAllQuotes(enquiryReqEntity);
             if (enquiryEntities != null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);
@@ -139,7 +156,7 @@ namespace WebApi.Controllers
             }
             // goodsEntity.UserId = GetUserId();
             var success = _goodsServices.DeleteGoods(enquiryId);
-            var enquiryEntities = _goodsServices.GetAllEnquiries();
+            var enquiryEntities = _goodsServices.GetAllQuotations();
             if (enquiryEntities != null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);

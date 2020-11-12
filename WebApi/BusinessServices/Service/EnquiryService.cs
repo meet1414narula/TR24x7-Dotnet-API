@@ -110,7 +110,8 @@ namespace BusinessServices
         {
             using (var scope = new TransactionScope())
             {
-                DateTime ed = TimeZoneInfo.ConvertTimeFromUtc(goodsEntity.ValidTill.ToUniversalTime(), INDIAN_ZONE);
+                //int? nullable = null;
+                DateTime ed = goodsEntity.ValidTill != DateTime.MinValue ? TimeZoneInfo.ConvertTimeFromUtc(goodsEntity.ValidTill.ToUniversalTime(), INDIAN_ZONE): TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
                 var expiryDate = new DateTime(ed.Year, ed.Month, ed.Day, 0, 0, 0);
                 long? userId = null;
                 var goods = new Enquiry
