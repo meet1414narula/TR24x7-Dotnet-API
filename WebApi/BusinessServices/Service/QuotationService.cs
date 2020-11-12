@@ -155,22 +155,22 @@ namespace BusinessServices
                 goods.IsActive = true;
                 goods.Status = goodsEntity.Status;
 
-               // if (goodsEntity.Freight != 0)
+                if (goodsEntity.Freight != 0)
                 {
                     goods.Freight = goodsEntity.Freight;
                 }
 
-                //if (!string.IsNullOrEmpty(goodsEntity.LoadingCharges))
+                if (!string.IsNullOrEmpty(goodsEntity.LoadingCharges))
                 {
                     goods.LoadingCharges = goodsEntity.LoadingCharges;
                 }
 
-               // if (!string.IsNullOrEmpty(goodsEntity.UnloadingCharges))
+                if (!string.IsNullOrEmpty(goodsEntity.UnloadingCharges))
                 {
                     goods.UnloadingCharges = goodsEntity.UnloadingCharges;
                 }
 
-               // if (!string.IsNullOrEmpty(goodsEntity.PackagingCharges))
+                if (!string.IsNullOrEmpty(goodsEntity.PackagingCharges))
                 {
                     goods.PackagingCharges = goodsEntity.PackagingCharges;
                 }

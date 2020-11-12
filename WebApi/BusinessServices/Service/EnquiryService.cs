@@ -121,7 +121,7 @@ namespace BusinessServices
                     To = goodsEntity.To,
                     FromAddress = goodsEntity.FromAddress,
                     ToAddress = goodsEntity.ToAddress,
-                    MobileNumber = !string.IsNullOrEmpty(goodsEntity.MobileNumber) ? Convert.ToInt64(goodsEntity.MobileNumber) : 0,
+                    
                     ExpiryDate = expiryDate,// TimeZoneInfo.ConvertTimeFromUtc(goodsEntity.ValidTill.ToUniversalTime(), INDIAN_ZONE),
                     CreationDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE),
                     LastUpdated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE),
@@ -130,10 +130,16 @@ namespace BusinessServices
                     VehicleLength = goodsEntity.VehicleLength,
                     MaterialTypeFID = goodsEntity.MaterialType,
                     Status = goodsEntity.Status,
-                    UserFID = goodsEntity.UserId != 0 ? goodsEntity.UserId : userId,
-                    Comments = goodsEntity.Comments,
+                    UserFID = goodsEntity.UserId != 0 ? goodsEntity.UserId : userId
                 };
-                _unitOfWork.EnquiryRepository.Insert(goods);
+
+                if (!string.IsNullOrEmpty(goodsEntity.MobileNumber))
+                    goods.MobileNumber = Convert.ToInt64(goodsEntity.MobileNumber);
+
+                if (!string.IsNullOrEmpty(goodsEntity.Comments))
+                    goods.Comments = goods.Comments;
+
+                    _unitOfWork.EnquiryRepository.Insert(goods);
                 _unitOfWork.Save();
                 scope.Complete();
                 return goods.EnquiryPID;
@@ -174,6 +180,7 @@ namespace BusinessServices
                         goods.MaterialTypeFID = goodsEntity.MaterialType;
                         goods.Status = goodsEntity.Status;
                         goods.LastUpdated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+                        if(!string.IsNullOrEmpty(goodsEntity.Comments))
                         goods.Comments = goodsEntity.Comments;
                         _unitOfWork.EnquiryRepository.Update(goods);
                         _unitOfWork.Save();
@@ -245,7 +252,7 @@ namespace BusinessServices
                         Status = x.Status,
                         ValidTill = x.ExpiryDate,
                         UserId= Convert.ToInt64(x.UserFID),
-                        Comments = x.Comments
+                        Comments =  x.Comments
                     };
                 }
                 ));
