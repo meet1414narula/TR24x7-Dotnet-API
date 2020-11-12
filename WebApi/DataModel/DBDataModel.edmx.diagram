@@ -36,9 +36,7 @@
         <EntityTypeShape EntityType="DBModel.OTP" Width="1.5" PointX="7.375" PointY="0.75" />
         <EntityTypeShape EntityType="DBModel.ConfigKeyValue" Width="1.5" PointX="0.75" PointY="3.75" />
         <EntityTypeShape EntityType="DBModel.EnquiryStatu" Width="1.5" PointX="9.375" PointY="0.75" />
-        <EntityTypeShape EntityType="DBModel.Booking" Width="1.5" PointX="15.75" PointY="8.625" />
         <EntityTypeShape EntityType="DBModel.Quotation" Width="1.5" PointX="13.5" PointY="8.625" />
-        <AssociationConnector Association="DBModel.FK_Quotation_Booking" />
         <EntityTypeShape EntityType="DBModel.Contact_RoadLine_Mapping" Width="1.5" PointX="8.25" PointY="17.75" />
         <EntityTypeShape EntityType="DBModel.RoadLine" Width="1.5" PointX="6" PointY="34.625" />
         <AssociationConnector Association="DBModel.FK_RoadLine_Contact_RoadLine_Mapping" />
@@ -50,6 +48,8 @@
         <AssociationConnector Association="DBModel.FK_MaterialType_Enquiry" />
         <AssociationConnector Association="DBModel.FK_User_Enquiry" />
         <AssociationConnector Association="DBModel.FK_VehicleType_Enquiry" />
+        <EntityTypeShape EntityType="DBModel.Booking" Width="1.5" PointX="13.5" PointY="13.625" />
+        <AssociationConnector Association="DBModel.FK_Enquiry_Booking" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

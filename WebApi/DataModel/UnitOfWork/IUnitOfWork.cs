@@ -23,7 +23,7 @@ namespace DataModel.UnitOfWork
         GenericRepository<Bid> BidRepository { get; }
 
         GenericRepository<Quotation> QuotationRepository { get; }
-
+       
         GenericRepository<Booking> BookingRepository { get; }
         #endregion
 

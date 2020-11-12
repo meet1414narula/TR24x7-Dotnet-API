@@ -70,5 +70,14 @@ namespace BusinessEntities
         //public string PackagingCharges { get; set; }
     }
 
+    public class BookingResponseEntity : EnquiryResponseEntity
+    {
+        public string TotalCharges { get; set; }
+
+        public string Advance { get; set; }
+
+        public string Comments { get; set; }
+    }
+
 
 }

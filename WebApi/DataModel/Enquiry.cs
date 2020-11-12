@@ -18,6 +18,7 @@ namespace DataModel
         public Enquiry()
         {
             this.Quotations = new HashSet<Quotation>();
+            this.Bookings = new HashSet<Booking>();
         }
     
         public long EnquiryPID { get; set; }
@@ -49,5 +50,7 @@ namespace DataModel
         public virtual MaterialType MaterialType { get; set; }
         public virtual User User { get; set; }
         public virtual VehicleType VehicleType { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Booking> Bookings { get; set; }
     }
 }

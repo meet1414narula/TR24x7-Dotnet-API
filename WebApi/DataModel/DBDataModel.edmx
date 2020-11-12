@@ -43,17 +43,17 @@
             <PropertyRef Name="BookingPID" />
           </Key>
           <Property Name="BookingPID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="BookedFreight" Type="int" />
-          <Property Name="LabourExpense" Type="int" />
-          <Property Name="VehicleFreight" Type="int" />
-          <Property Name="BillingCharges" Type="int" />
-          <Property Name="OtherExpense" Type="int" />
+          <Property Name="Freight" Type="int" />
+          <Property Name="Advance" Type="int" />
+          <Property Name="LoadingCharges" Type="varchar" MaxLength="100" />
+          <Property Name="UnloadingCharges" Type="varchar" MaxLength="100" />
+          <Property Name="PackagingCharges" Type="varchar" MaxLength="100" />
           <Property Name="CreationDate" Type="datetime2" Precision="7" Nullable="false" />
           <Property Name="LastUpdated" Type="datetime2" Precision="7" />
           <Property Name="DOM" Type="datetime2" Precision="7" Nullable="false" />
           <Property Name="Status" Type="varchar" MaxLength="20" />
           <Property Name="IsActive" Type="bit" />
-          <Property Name="QuotationFID" Type="bigint" />
+          <Property Name="EnquiryFID" Type="bigint" />
           <Property Name="DisplayOrder" Type="int" />
         </EntityType>
         <EntityType Name="City">
@@ -337,6 +337,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Enquiry_Booking">
+          <End Role="Enquiry" Type="Self.Enquiry" Multiplicity="0..1" />
+          <End Role="Booking" Type="Self.Booking" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Enquiry">
+              <PropertyRef Name="EnquiryPID" />
+            </Principal>
+            <Dependent Role="Booking">
+              <PropertyRef Name="EnquiryFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Enquiry_Quotation">
           <End Role="Enquiry" Type="Self.Enquiry" Multiplicity="0..1" />
           <End Role="Quotation" Type="Self.Quotation" Multiplicity="*" />
@@ -382,18 +394,6 @@
             </Principal>
             <Dependent Role="Goods">
               <PropertyRef Name="MaterialTypeFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Quotation_Booking">
-          <End Role="Quotation" Type="Self.Quotation" Multiplicity="0..1" />
-          <End Role="Booking" Type="Self.Booking" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Quotation">
-              <PropertyRef Name="QuotationPID" />
-            </Principal>
-            <Dependent Role="Booking">
-              <PropertyRef Name="QuotationFID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -606,6 +606,10 @@
             <End Role="Contact" EntitySet="Contact" />
             <End Role="Contact_RoadLine_Mapping" EntitySet="Contact_RoadLine_Mapping" />
           </AssociationSet>
+          <AssociationSet Name="FK_Enquiry_Booking" Association="Self.FK_Enquiry_Booking">
+            <End Role="Enquiry" EntitySet="Enquiry" />
+            <End Role="Booking" EntitySet="Booking" />
+          </AssociationSet>
           <AssociationSet Name="FK_Enquiry_Quotation" Association="Self.FK_Enquiry_Quotation">
             <End Role="Enquiry" EntitySet="Enquiry" />
             <End Role="Quotation" EntitySet="Quotation" />
@@ -621,10 +625,6 @@
           <AssociationSet Name="FK_MaterialType_Goods" Association="Self.FK_MaterialType_Goods">
             <End Role="MaterialType" EntitySet="MaterialType" />
             <End Role="Goods" EntitySet="Goods" />
-          </AssociationSet>
-          <AssociationSet Name="FK_Quotation_Booking" Association="Self.FK_Quotation_Booking">
-            <End Role="Quotation" EntitySet="Quotation" />
-            <End Role="Booking" EntitySet="Booking" />
           </AssociationSet>
           <AssociationSet Name="FK_RoadLine_Contact_RoadLine_Mapping" Association="Self.FK_RoadLine_Contact_RoadLine_Mapping">
             <End Role="RoadLine" EntitySet="RoadLine" />
@@ -762,12 +762,7 @@
           <EntitySet Name="OTPs" EntityType="DBModel.OTP" />
           <EntitySet Name="ConfigKeyValues" EntityType="DBModel.ConfigKeyValue" />
           <EntitySet Name="EnquiryStatus" EntityType="DBModel.EnquiryStatu" />
-          <EntitySet Name="Bookings" EntityType="DBModel.Booking" />
           <EntitySet Name="Quotations" EntityType="DBModel.Quotation" />
-          <AssociationSet Name="FK_Quotation_Booking" Association="DBModel.FK_Quotation_Booking">
-            <End Role="Quotation" EntitySet="Quotations" />
-            <End Role="Booking" EntitySet="Bookings" />
-          </AssociationSet>
           <EntitySet Name="Contact_RoadLine_Mapping" EntityType="DBModel.Contact_RoadLine_Mapping" />
           <EntitySet Name="RoadLines" EntityType="DBModel.RoadLine" />
           <AssociationSet Name="FK_RoadLine_Contact_RoadLine_Mapping" Association="DBModel.FK_RoadLine_Contact_RoadLine_Mapping">
@@ -799,6 +794,11 @@
           <AssociationSet Name="FK_VehicleType_Enquiry" Association="DBModel.FK_VehicleType_Enquiry">
             <End Role="VehicleType" EntitySet="VehicleTypes" />
             <End Role="Enquiry" EntitySet="Enquiries" />
+          </AssociationSet>
+          <EntitySet Name="Bookings" EntityType="DBModel.Booking" />
+          <AssociationSet Name="FK_Enquiry_Booking" Association="DBModel.FK_Enquiry_Booking">
+            <End Role="Enquiry" EntitySet="Enquiries" />
+            <End Role="Booking" EntitySet="Bookings" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="Address">
@@ -1211,25 +1211,6 @@
           <Property Name="Description" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
           <Property Name="IsActive" Type="Boolean" />
         </EntityType>
-        <EntityType Name="Booking">
-          <Key>
-            <PropertyRef Name="BookingPID" />
-          </Key>
-          <Property Name="BookingPID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="BookedFreight" Type="Int32" />
-          <Property Name="LabourExpense" Type="Int32" />
-          <Property Name="VehicleFreight" Type="Int32" />
-          <Property Name="BillingCharges" Type="Int32" />
-          <Property Name="OtherExpense" Type="Int32" />
-          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="7" />
-          <Property Name="LastUpdated" Type="DateTime" Precision="7" />
-          <Property Name="DOM" Type="DateTime" Nullable="false" Precision="7" />
-          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="IsActive" Type="Boolean" />
-          <Property Name="QuotationFID" Type="Int64" />
-          <Property Name="DisplayOrder" Type="Int32" />
-          <NavigationProperty Name="Quotation" Relationship="DBModel.FK_Quotation_Booking" FromRole="Booking" ToRole="Quotation" />
-        </EntityType>
         <EntityType Name="Quotation">
           <Key>
             <PropertyRef Name="QuotationPID" />
@@ -1246,21 +1227,8 @@
           <Property Name="IsActive" Type="Boolean" />
           <Property Name="EnquiryFID" Type="Int64" />
           <Property Name="DisplayOrder" Type="Int32" />
-          <NavigationProperty Name="Bookings" Relationship="DBModel.FK_Quotation_Booking" FromRole="Quotation" ToRole="Booking" />
           <NavigationProperty Name="Enquiry" Relationship="DBModel.FK_Enquiry_Quotation" FromRole="Quotation" ToRole="Enquiry" />
         </EntityType>
-        <Association Name="FK_Quotation_Booking">
-          <End Type="DBModel.Quotation" Role="Quotation" Multiplicity="0..1" />
-          <End Type="DBModel.Booking" Role="Booking" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Quotation">
-              <PropertyRef Name="QuotationPID" />
-            </Principal>
-            <Dependent Role="Booking">
-              <PropertyRef Name="QuotationFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="Contact_RoadLine_Mapping">
           <Key>
             <PropertyRef Name="ContactRoadLineMappingPID" />
@@ -1366,6 +1334,7 @@
           <NavigationProperty Name="MaterialType" Relationship="DBModel.FK_MaterialType_Enquiry" FromRole="Enquiry" ToRole="MaterialType" />
           <NavigationProperty Name="User" Relationship="DBModel.FK_User_Enquiry" FromRole="Enquiry" ToRole="User" />
           <NavigationProperty Name="VehicleType" Relationship="DBModel.FK_VehicleType_Enquiry" FromRole="Enquiry" ToRole="VehicleType" />
+          <NavigationProperty Name="Bookings" Relationship="DBModel.FK_Enquiry_Booking" FromRole="Enquiry" ToRole="Booking" />
         </EntityType>
         <Association Name="FK_Enquiry_Quotation">
           <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="0..1" />
@@ -1412,6 +1381,37 @@
             </Principal>
             <Dependent Role="Enquiry">
               <PropertyRef Name="VehicleTypeFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Booking">
+          <Key>
+            <PropertyRef Name="BookingPID" />
+          </Key>
+          <Property Name="BookingPID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Freight" Type="Int32" />
+          <Property Name="Advance" Type="Int32" />
+          <Property Name="LoadingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="UnloadingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="PackagingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="LastUpdated" Type="DateTime" Precision="7" />
+          <Property Name="DOM" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="EnquiryFID" Type="Int64" />
+          <Property Name="DisplayOrder" Type="Int32" />
+          <NavigationProperty Name="Enquiry" Relationship="DBModel.FK_Enquiry_Booking" FromRole="Booking" ToRole="Enquiry" />
+        </EntityType>
+        <Association Name="FK_Enquiry_Booking">
+          <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="0..1" />
+          <End Type="DBModel.Booking" Role="Booking" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Enquiry">
+              <PropertyRef Name="EnquiryPID" />
+            </Principal>
+            <Dependent Role="Booking">
+              <PropertyRef Name="EnquiryFID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1663,25 +1663,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Bookings">
-            <EntityTypeMapping TypeName="DBModel.Booking">
-              <MappingFragment StoreEntitySet="Booking">
-                <ScalarProperty Name="DisplayOrder" ColumnName="DisplayOrder" />
-                <ScalarProperty Name="QuotationFID" ColumnName="QuotationFID" />
-                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="DOM" ColumnName="DOM" />
-                <ScalarProperty Name="LastUpdated" ColumnName="LastUpdated" />
-                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
-                <ScalarProperty Name="OtherExpense" ColumnName="OtherExpense" />
-                <ScalarProperty Name="BillingCharges" ColumnName="BillingCharges" />
-                <ScalarProperty Name="VehicleFreight" ColumnName="VehicleFreight" />
-                <ScalarProperty Name="LabourExpense" ColumnName="LabourExpense" />
-                <ScalarProperty Name="BookedFreight" ColumnName="BookedFreight" />
-                <ScalarProperty Name="BookingPID" ColumnName="BookingPID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Quotations">
             <EntityTypeMapping TypeName="DBModel.Quotation">
               <MappingFragment StoreEntitySet="Quotation">
@@ -1762,6 +1743,25 @@
                 <ScalarProperty Name="To" ColumnName="To" />
                 <ScalarProperty Name="From" ColumnName="From" />
                 <ScalarProperty Name="EnquiryPID" ColumnName="EnquiryPID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Bookings">
+            <EntityTypeMapping TypeName="DBModel.Booking">
+              <MappingFragment StoreEntitySet="Booking">
+                <ScalarProperty Name="DisplayOrder" ColumnName="DisplayOrder" />
+                <ScalarProperty Name="EnquiryFID" ColumnName="EnquiryFID" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="DOM" ColumnName="DOM" />
+                <ScalarProperty Name="LastUpdated" ColumnName="LastUpdated" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="PackagingCharges" ColumnName="PackagingCharges" />
+                <ScalarProperty Name="UnloadingCharges" ColumnName="UnloadingCharges" />
+                <ScalarProperty Name="LoadingCharges" ColumnName="LoadingCharges" />
+                <ScalarProperty Name="Advance" ColumnName="Advance" />
+                <ScalarProperty Name="Freight" ColumnName="Freight" />
+                <ScalarProperty Name="BookingPID" ColumnName="BookingPID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

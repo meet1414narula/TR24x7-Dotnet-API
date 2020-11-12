@@ -14,7 +14,7 @@ namespace WebApi.Controllers
     {
         #region Private variable.
 
-        private readonly IEnquiryService _goodsServices;
+        private readonly IBookingService _goodsServices;
 
         #endregion
 
@@ -23,7 +23,7 @@ namespace WebApi.Controllers
         /// <summary>
         /// Public constructor to initialize goods service instance
         /// </summary>
-        public BookingController(IEnquiryService goodsServices)
+        public BookingController(IBookingService goodsServices)
         {
             _goodsServices = goodsServices;
         }
@@ -33,10 +33,10 @@ namespace WebApi.Controllers
         // GET api/goods/GetAllGoods
         [HttpGet]
         [HttpOptions]
-        [ActionName("GetAllEnquiries")]
-        public HttpResponseMessage GetAllEnquiries()
+        [ActionName("GetAllBookings")]
+        public HttpResponseMessage GetAllBookings()
         {
-            var enquiryEntities = _goodsServices.GetAllEnquiries();
+            var enquiryEntities = _goodsServices.GetAllQuotations();
             if (enquiryEntities !=null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);
@@ -92,18 +92,17 @@ namespace WebApi.Controllers
         // POST api/AddGoods
         [HttpPost]
         [HttpOptions]
-        [ActionName("AddEnquiry")]
-        public HttpResponseMessage AddEnquiry([FromBody] EnquiryRequestEntity goodsEntity)
+        [ActionName("AddBooking")]
+        public HttpResponseMessage AddQuotation([FromUri]int enquiryId, BookingRequestEntity goodsEntity)
         {
-            if(goodsEntity == null)
+            if (goodsEntity == null)
             {
-               return  Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK);
             }
-
             goodsEntity.UserId = GetUserId();
-
-            var goodsId= _goodsServices.CreateEnquiry(goodsEntity);
-            var response = Request.CreateResponse(HttpStatusCode.OK, goodsId);
+            goodsEntity.EnquiryId = enquiryId;
+            var success = _goodsServices.CreateQuotation(goodsEntity);
+            var response = Request.CreateResponse(HttpStatusCode.OK, success);
             return response;
         }
 
@@ -111,7 +110,7 @@ namespace WebApi.Controllers
         // POST api/AddGoods
         [HttpPost]
         [HttpOptions]
-        public HttpResponseMessage UpdateEnquiry([FromUri]int enquiryId, EnquiryRequestEntity goodsEntity)
+        public HttpResponseMessage UpdateBooking([FromUri]int enquiryId, BookingRequestEntity goodsEntity)
         {
             if (goodsEntity == null)
             {
@@ -131,8 +130,8 @@ namespace WebApi.Controllers
         // DELETE api/values/5
         [HttpDelete]
         [HttpOptions]
-        [ActionName("DeleteEnquiry")]
-        public HttpResponseMessage DeleteEnquiry([FromUri]int enquiryId)
+        [ActionName("DeleteBooking")]
+        public HttpResponseMessage DeleteBooking([FromUri]int enquiryId)
         {
             if (enquiryId == 0)
             {
@@ -140,7 +139,7 @@ namespace WebApi.Controllers
             }
            // goodsEntity.UserId = GetUserId();
             var success = _goodsServices.DeleteGoods(enquiryId);
-            var enquiryEntities = _goodsServices.GetAllEnquiries();
+            var enquiryEntities = _goodsServices.GetAllQuotations();
             if (enquiryEntities != null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);

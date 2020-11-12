@@ -98,4 +98,9 @@ namespace BusinessEntities
       
         public long UserId { get; set; }
     }
+
+    public class BookingRequestEntity:QuotationRequestEntity
+    {
+        public int Advance { get; set; }
+    }
 }

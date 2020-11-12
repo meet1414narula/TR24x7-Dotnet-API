@@ -130,14 +130,15 @@ namespace BusinessServices
                     VehicleLength = goodsEntity.VehicleLength,
                     MaterialTypeFID = goodsEntity.MaterialType,
                     Status = goodsEntity.Status,
-                    UserFID = goodsEntity.UserId != 0 ? goodsEntity.UserId : userId
+                    UserFID = goodsEntity.UserId != 0 ? goodsEntity.UserId : userId,
+                    Comments="",
                 };
 
                 if (!string.IsNullOrEmpty(goodsEntity.MobileNumber))
                     goods.MobileNumber = Convert.ToInt64(goodsEntity.MobileNumber);
 
                 if (!string.IsNullOrEmpty(goodsEntity.Comments))
-                    goods.Comments = goods.Comments;
+                    goods.Comments = goodsEntity.Comments;
 
                     _unitOfWork.EnquiryRepository.Insert(goods);
                 _unitOfWork.Save();

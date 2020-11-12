@@ -14,12 +14,6 @@ namespace DataModel
     
     public partial class Quotation
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Quotation()
-        {
-            this.Bookings = new HashSet<Booking>();
-        }
-    
         public long QuotationPID { get; set; }
         public Nullable<int> Freight { get; set; }
         public string LoadingCharges { get; set; }
@@ -33,8 +27,6 @@ namespace DataModel
         public Nullable<long> EnquiryFID { get; set; }
         public Nullable<int> DisplayOrder { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Booking> Bookings { get; set; }
         public virtual Enquiry Enquiry { get; set; }
     }
 }

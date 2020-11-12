@@ -15,19 +15,19 @@ namespace DataModel
     public partial class Booking
     {
         public long BookingPID { get; set; }
-        public Nullable<int> BookedFreight { get; set; }
-        public Nullable<int> LabourExpense { get; set; }
-        public Nullable<int> VehicleFreight { get; set; }
-        public Nullable<int> BillingCharges { get; set; }
-        public Nullable<int> OtherExpense { get; set; }
+        public Nullable<int> Freight { get; set; }
+        public Nullable<int> Advance { get; set; }
+        public string LoadingCharges { get; set; }
+        public string UnloadingCharges { get; set; }
+        public string PackagingCharges { get; set; }
         public System.DateTime CreationDate { get; set; }
         public Nullable<System.DateTime> LastUpdated { get; set; }
         public System.DateTime DOM { get; set; }
         public string Status { get; set; }
         public Nullable<bool> IsActive { get; set; }
-        public Nullable<long> QuotationFID { get; set; }
+        public Nullable<long> EnquiryFID { get; set; }
         public Nullable<int> DisplayOrder { get; set; }
     
-        public virtual Quotation Quotation { get; set; }
+        public virtual Enquiry Enquiry { get; set; }
     }
 }

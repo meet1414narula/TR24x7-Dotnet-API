@@ -14,6 +14,7 @@ namespace BusinessServices
             registerComponent.RegisterType<IGoodsService, GoodsService>();
             registerComponent.RegisterType<IEnquiryService, EnquiryService>();
             registerComponent.RegisterType<IQuotationService, QuotationService>();
+            registerComponent.RegisterType<IBookingService, BookingService>();
             registerComponent.RegisterType<IUserService, UserService>();
             registerComponent.RegisterType<ITokenService, TokenService>();
             registerComponent.RegisterType<IErrorService, ErrorService>();
