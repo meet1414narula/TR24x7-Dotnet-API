@@ -125,31 +125,39 @@ namespace BusinessServices
             {
                 if (condition.Equals("L1M", StringComparison.InvariantCultureIgnoreCase))
                     filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate.AddDays(-30)).ToList();
-
+                else
                 if (condition.Equals("L7D", StringComparison.InvariantCultureIgnoreCase))
                     filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate.AddDays(-7)).ToList();
-
+                else
                 if (condition.Equals("TD", StringComparison.InvariantCultureIgnoreCase))
                     filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate).ToList();
+                else
+                     if (condition.Equals("ALL", StringComparison.InvariantCultureIgnoreCase))
+                    filteredEnq = allEnq.ToList();
 
                 if (filteredEnq != null)
                 {
                     var filEq = filteredEnq.Select(x => x.EnquiryPID).ToList();
+                    if (condition.Equals("F3M", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var fe = allEnq.Where(x => x.ExpiryDate <= indiaDate.AddDays(+90) && x.ExpiryDate >= indiaDate).ToList();
+                        filteredEnq.AddRange(fe.Where(x => !filEq.Contains(x.EnquiryPID)).ToList());
+                    }
                     if (condition.Equals("F1M", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var fe = allEnq.Where(x => x.ExpiryDate >= indiaDate.AddDays(+30)).ToList();
+                        var fe = allEnq.Where(x => x.ExpiryDate <= indiaDate.AddDays(+30) && x.ExpiryDate >= indiaDate).ToList();
                         filteredEnq.AddRange(fe.Where(x => !filEq.Contains(x.EnquiryPID)).ToList());
                     }
 
                     if (condition.Equals("F7D", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var fe = allEnq.Where(x => x.ExpiryDate >= indiaDate.AddDays(+7)).ToList();
+                        var fe = allEnq.Where(x => x.ExpiryDate <= indiaDate.AddDays(+7) && x.ExpiryDate >= indiaDate).ToList();
                         filteredEnq.AddRange(fe.Where(x => !filEq.Contains(x.EnquiryPID)).ToList());
                     }
 
                     if (condition.Equals("MTD", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        var fe = allEnq.Where(x => x.ExpiryDate >= indiaDate).ToList();
+                        var fe = allEnq.Where(x => x.ExpiryDate <= indiaDate && x.ExpiryDate >= indiaDate).ToList();
                         filteredEnq.AddRange(fe.Where(x => !filEq.Contains(x.EnquiryPID)).ToList());
                     }
                 }
