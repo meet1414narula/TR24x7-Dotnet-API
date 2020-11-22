@@ -15,7 +15,7 @@ namespace WebApi.Controllers
         #region Private variable.
 
         private readonly IBookingService _goodsServices;
-
+        private int userId;
         #endregion
 
         #region Public Constructor
@@ -36,7 +36,8 @@ namespace WebApi.Controllers
         [ActionName("GetAllBookings")]
         public HttpResponseMessage GetAllBookings()
         {
-            var enquiryEntities = _goodsServices.GetAllQuotations();
+            userId = GetUserId();
+            var enquiryEntities =  _goodsServices.GetAllQuotations(userId);
             if (enquiryEntities !=null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);
@@ -139,7 +140,7 @@ namespace WebApi.Controllers
             }
            // goodsEntity.UserId = GetUserId();
             var success = _goodsServices.DeleteGoods(enquiryId);
-            var enquiryEntities = _goodsServices.GetAllQuotations();
+            var enquiryEntities = _goodsServices.GetAllQuotations(GetUserId());
             if (enquiryEntities != null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);

@@ -28,6 +28,7 @@ namespace DataModel.UnitOfWork
         private GenericRepository<Enquiry> _enquiryRepository;
         private GenericRepository<EnquiryStatu> _enquiryStatusRepository;
         private GenericRepository<User> _userRepository;
+        private GenericRepository<UserAccess> _userAccessRepository;
         private GenericRepository<UserType> _userTypeRepository;
         private GenericRepository<Token> _tokenRepository;
         private GenericRepository<Error> _errorRepository;
@@ -287,6 +288,19 @@ namespace DataModel.UnitOfWork
                 if (this._bookingRepository == null)
                     this._bookingRepository = new GenericRepository<Booking>(_context);
                 return _bookingRepository;
+            }
+        }
+
+        /// <summary>
+        /// Get/Set Property for user repository.
+        /// </summary>
+        public GenericRepository<UserAccess> UserAccessRepository
+        {
+            get
+            {
+                if (this._userAccessRepository == null)
+                    this._userAccessRepository = new GenericRepository<UserAccess>(_context);
+                return _userAccessRepository;
             }
         }
 

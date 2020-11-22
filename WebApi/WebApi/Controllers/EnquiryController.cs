@@ -15,6 +15,7 @@ namespace WebApi.Controllers
         #region Private variable.
 
         private readonly IEnquiryService _goodsServices;
+        private int userId = 0;
 
         #endregion
 
@@ -36,7 +37,56 @@ namespace WebApi.Controllers
         [ActionName("GetAllEnquiries")]
         public HttpResponseMessage GetAllEnquiries()
         {
-            var enquiryEntities = _goodsServices.GetAllEnquiries();
+            userId = GetUserId();
+            if(userId != 0)
+            {
+                var user = userId;
+            }
+            var enquiryEntities = _goodsServices.GetAllEnquiries(userId);
+            if (enquiryEntities != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            // throw new Exception("Goods not found");
+        }
+
+        [HttpGet]
+        [HttpOptions]
+        [ActionName("GetAllEnquiriesByFilter")]
+        public HttpResponseMessage GetAllEnquiriesByFilter([FromUri] string conditions)
+        {
+            userId = GetUserId();
+            if (userId != 0)
+            {
+                var user = userId;
+            }
+            var enquiryEntities = _goodsServices.GetAllEnquiriesByFilter(userId,conditions.Split(',').ToList());
+            if (enquiryEntities != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            // throw new Exception("Goods not found");
+        }
+
+        // GET api/goods/GetAllGoods
+        [HttpGet]
+        [HttpOptions]
+        [ActionName("GetAllEnquiries")]
+        public HttpResponseMessage GetAllEnquiries([FromUri] int userId)
+        {
+            if(userId==0)
+            {
+                userId = GetUserId();
+            }
+            var enquiryEntities = _goodsServices.GetAllEnquiries(userId);
             if (enquiryEntities !=null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);
@@ -100,7 +150,10 @@ namespace WebApi.Controllers
                return  Request.CreateResponse(HttpStatusCode.OK);
             }
 
-            goodsEntity.UserId = GetUserId();
+            if (goodsEntity.UserId == 0)
+            {
+                goodsEntity.UserId = GetUserId();
+            }
 
             var goodsId= _goodsServices.CreateEnquiry(goodsEntity);
             var response = Request.CreateResponse(HttpStatusCode.OK, goodsId);
@@ -117,6 +170,7 @@ namespace WebApi.Controllers
             {
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
+            if (goodsEntity.UserId==0)
             goodsEntity.UserId = GetUserId();
             var success= _goodsServices.UpdateGoods(enquiryId,goodsEntity);
             var response = Request.CreateResponse(HttpStatusCode.OK, success);
@@ -138,9 +192,9 @@ namespace WebApi.Controllers
             {
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
-           // goodsEntity.UserId = GetUserId();
+            userId = GetUserId();
             var success = _goodsServices.DeleteGoods(enquiryId);
-            var enquiryEntities = _goodsServices.GetAllEnquiries();
+            var enquiryEntities = userId !=0 ? _goodsServices.GetAllEnquiries(userId): _goodsServices.GetAllEnquiries();
             if (enquiryEntities != null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);

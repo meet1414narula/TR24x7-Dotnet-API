@@ -25,6 +25,7 @@ namespace DataModel
             this.Tokens = new HashSet<Token>();
             this.UserProfiles = new HashSet<UserProfile>();
             this.Enquiries = new HashSet<Enquiry>();
+            this.UserAccesses = new HashSet<UserAccess>();
         }
     
         public long UserPID { get; set; }
@@ -52,5 +53,7 @@ namespace DataModel
         public virtual UserType UserType { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Enquiry> Enquiries { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<UserAccess> UserAccesses { get; set; }
     }
 }

@@ -12,6 +12,8 @@ namespace DataModel.UnitOfWork
         GenericRepository<Enquiry> EnquiryRepository { get; }
         GenericRepository<EnquiryStatu> EnquiryStatusRepository { get; }
         GenericRepository<User> UserRepository { get; }
+
+        GenericRepository<UserAccess> UserAccessRepository { get; }
         GenericRepository<UserType> UserTypeRepository { get; }
         GenericRepository<Token> TokenRepository { get; }
         GenericRepository<OTP> OTPRepository { get; }

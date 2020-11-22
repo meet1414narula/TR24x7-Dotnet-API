@@ -15,6 +15,7 @@ namespace WebApi.Controllers
         #region Private variable.
 
         private readonly IQuotationService _goodsServices;
+        private int userId;
 
         #endregion
 
@@ -36,7 +37,8 @@ namespace WebApi.Controllers
         [ActionName("GetAllQuotations")]
         public HttpResponseMessage GetAllQuotations()
         {
-            var enquiryEntities = _goodsServices.GetAllQuotations();
+            userId = GetUserId();
+            var enquiryEntities = _goodsServices.GetAllQuotations(userId);
             if (enquiryEntities != null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);
@@ -133,6 +135,7 @@ namespace WebApi.Controllers
             {
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
+            if(goodsEntity.UserId==0)
             goodsEntity.UserId = GetUserId();
             var success = _goodsServices.UpdateGoods(enquiryId, goodsEntity);
             var response = Request.CreateResponse(HttpStatusCode.OK, success);

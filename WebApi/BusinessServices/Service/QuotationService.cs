@@ -73,13 +73,35 @@ namespace BusinessServices
         /// Fetches all the goodss.
         /// </summary>
         /// <returns></returns>
-        public List<BusinessEntities.QuotationResponseEntity> GetAllQuotations()
+        public List<BusinessEntities.QuotationResponseEntity> GetAllQuotations(int userId)
         {
-            var enquiries = _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x=>x.CreationDate).ToList();
+            var enquiries = GetEnquiriesByUserAccess(userId);
             var quotations = _unitOfWork.QuotationRepository.GetMany(x=>x.Freight !=null && x.Freight !=0).OrderByDescending(x => x.CreationDate).ToList();
             if (enquiries.Any() && quotations.Any())
             {
                 return MapQuotations(enquiries,quotations);
+            }
+            return null;
+        }
+
+        private List<Enquiry> GetEnquiriesByUserAccess(int userId)
+        {
+            var userAccess = _unitOfWork.UserAccessRepository.GetMany(x => x.UserFID == userId && x.IsActive == true).Select(x => x.Code).ToList();
+            if (userAccess.Contains("AQ"))
+            {
+                return _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x => x.CreationDate).ToList();
+            }
+
+            return _unitOfWork.EnquiryRepository.GetMany(x => x.UserFID == userId).OrderByDescending(x => x.CreationDate).ToList(); ;
+        }
+
+        public List<BusinessEntities.QuotationResponseEntity> GetAllQuotations()
+        {
+            var enquiries = _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x => x.CreationDate).ToList();
+            var quotations = _unitOfWork.QuotationRepository.GetMany(x => x.Freight != null && x.Freight != 0).OrderByDescending(x => x.CreationDate).ToList();
+            if (enquiries.Any() && quotations.Any())
+            {
+                return MapQuotations(enquiries, quotations);
             }
             return null;
         }
@@ -270,7 +292,8 @@ namespace BusinessServices
           
             if (quotations != null && quotations.Count() > 0)
             {
-                quotations = quotations.OrderByDescending(x => x.CreationDate).ToList();
+                var enqIds = enquiries.Select(x => x.EnquiryPID).ToList();
+                quotations = quotations.Where(x=>enqIds.Contains(Convert.ToInt64(x.EnquiryFID))).OrderByDescending(x => x.CreationDate).ToList();
 
                 listGoodsEntity.AddRange(quotations.Select(qt =>
                 {

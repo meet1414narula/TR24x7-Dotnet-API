@@ -12,6 +12,10 @@ namespace BusinessEntities
         public string Mobile { get; set; }
         public int Rating { get; set; }
 
+        public string ContactType { get; set; }
+
+        public string VehicleLength { get; set; }
+
         public List<RoadLineResponseEntity> RoadLines { get; set; } 
     }
 

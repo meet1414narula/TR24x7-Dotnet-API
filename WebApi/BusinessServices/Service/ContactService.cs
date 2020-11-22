@@ -54,22 +54,23 @@ namespace BusinessServices
                 var contact = new Contact
                 {
                     Name = contactEntity.Name,
-                    Mobile= contactEntity.Mobile,
+                    Mobile= contactEntity.MobileNumber,
                     Rating = contactEntity.Rating,
                     DisplayOrder = contactEntity.DisplayOrder,
                     Rank = contactEntity.Rank,
                     CreationDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE),
                     LastUpdated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE),
-                    UserTypeFID = contactEntity.UserTypeId,
-                    IsActive = true
+                    UserTypeFID = contactEntity.ContactTypeId,
+                    IsActive = true,
+                    VehicleLength = contactEntity.VehicleLength,
                 };
 
                 _unitOfWork.ContactRepository.Insert(contact);
                 // _unitOfWork.Save();
 
-                if (!string.IsNullOrEmpty(contactEntity.OtherRoadLines))
+                if (!string.IsNullOrEmpty(contactEntity.OtherRoadlines))
                 {
-                    foreach (var item in contactEntity.OtherRoadLines.Split(','))
+                    foreach (var item in contactEntity.OtherRoadlines.Split(','))
                     {
                         var roadline = new RoadLine
                         {
@@ -83,22 +84,26 @@ namespace BusinessServices
                         var contactRoadline = new Contact_RoadLine_Mapping
                         {
                             ContactFID = contact.ContactPID,
-                            ContactRoadLineMappingPID = roadline.RoadLinePID
+                            RoadLineFID = roadline.RoadLinePID
                         };
                         _unitOfWork.ContactRoadLineMappingRepository.Insert(contactRoadline);
 
-                        //_unitOfWork.Save();
+                        _unitOfWork.Save();
                     }
                 }
 
-                foreach (var item in contactEntity.RoadLines)
+                foreach (var item in contactEntity.Roadlines)
                 {
                     var contactRoadline = new Contact_RoadLine_Mapping
                     {
-                        ContactFID = contact.ContactPID,
-                        ContactRoadLineMappingPID = item
+                        ContactFID = contact.ContactPID
                     };
+                    if(item !=0)
+                    {
+                        contactRoadline.RoadLineFID = item;
+                    }
                     _unitOfWork.ContactRoadLineMappingRepository.Insert(contactRoadline);
+                    _unitOfWork.Save();
                 }
 
                 _unitOfWork.Save();
@@ -143,8 +148,9 @@ namespace BusinessServices
                         {
                             _unitOfWork.ContactRoadLineMappingRepository.Delete(item);
                         }
-                        _unitOfWork.ContactRepository.GetByID(contactId);
-                        _unitOfWork.ContactRepository.Delete(goods);
+                       var contact = _unitOfWork.ContactRepository.GetByID(contactId);
+                        if(contact != null)
+                        _unitOfWork.ContactRepository.Delete(contact);
                         _unitOfWork.Save();
                         scope.Complete();
                         success = true;
@@ -162,24 +168,81 @@ namespace BusinessServices
             {
                 goods = goods.OrderByDescending(x => x.CreationDate).ToList();
 
-                listGoodsEntity.AddRange(goods.Select(x =>
+                foreach (var item in goods)
                 {
-                    return new ContactResponseEntity
+                    ContactResponseEntity contactResponseEntity = new ContactResponseEntity
                     {
-                        ContactId = Convert.ToInt32(x.ContactPID),
-                        Name = x.Name,
-                        Mobile = x.Mobile,
-                        Rating = Convert.ToInt32(x.Rating),
+                        ContactId = Convert.ToInt32(item.ContactPID),
+                        Name = item.Name,
+                        Mobile = item.Mobile,
+                        Rating = Convert.ToInt32(item.Rating),
+                        VehicleLength =item.VehicleLength,
+                        ContactType = item.UserType.Type
                     };
+
+                    contactResponseEntity.RoadLines = new List<RoadLineResponseEntity>();
+
+                    foreach (var rd in item.Contact_RoadLine_Mapping)
+                    {
+                        if (rd.RoadLine != null)
+                        {
+                            RoadLineResponseEntity roadLineResponseEntity = new RoadLineResponseEntity
+                            {
+                                Id = rd.RoadLine.RoadLinePID,
+                                Name = rd.RoadLine.Name
+                            };
+                            contactResponseEntity.RoadLines.Add(roadLineResponseEntity);
+                        }
+                    }
+
+                    listGoodsEntity.Add(contactResponseEntity);
                 }
-                ));
+                
             }
             return listGoodsEntity;
         }
 
         public List<ContactResponseEntity> GetAllContacts()
         {
-            throw new NotImplementedException();
+            var contacts = _unitOfWork.ContactRepository.GetAll().ToList();
+            if (contacts.Any())
+            {
+                return MapGoods(contacts);
+            }
+            return null;
+        }
+
+        public ContactResponseEntity GetContact(int contactId)
+        {
+            var contact = _unitOfWork.ContactRepository.GetByID(contactId);
+            if (contact != null)
+            {
+                ContactResponseEntity contactResponseEntity = new ContactResponseEntity
+                {
+                    ContactId = Convert.ToInt32(contact.ContactPID),
+                    Name = contact.Name,
+                    Mobile = contact.Mobile,
+                    Rating = Convert.ToInt32(contact.Rating),
+                    ContactType =Convert.ToString(contact.UserType.UserTypePID)
+                };
+
+                contactResponseEntity.RoadLines = new List<RoadLineResponseEntity>();
+
+                foreach (var rd in contact.Contact_RoadLine_Mapping)
+                {
+                    if (rd.RoadLine != null)
+                    {
+                        RoadLineResponseEntity roadLineResponseEntity = new RoadLineResponseEntity
+                        {
+                            Id = rd.RoadLine.RoadLinePID,
+                            Name = rd.RoadLine.Name
+                        };
+                        contactResponseEntity.RoadLines.Add(roadLineResponseEntity);
+                    }
+                }
+                return contactResponseEntity;
+            }
+            return null;
         }
     }
 }

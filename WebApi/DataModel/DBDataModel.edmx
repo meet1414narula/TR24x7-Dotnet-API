@@ -100,6 +100,7 @@
           <Property Name="DisplayOrder" Type="int" />
           <Property Name="Rank" Type="int" />
           <Property Name="IsActive" Type="bit" />
+          <Property Name="VehicleLength" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="Contact_RoadLine_Mapping">
           <Key>
@@ -262,6 +263,16 @@
           <Property Name="Salt" Type="varchar" MaxLength="250" />
           <Property Name="IsActive" Type="bit" />
           <Property Name="UserTypeFID" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="UserAccess">
+          <Key>
+            <PropertyRef Name="UserAccessPID" />
+          </Key>
+          <Property Name="UserAccessPID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Code" Type="varchar" MaxLength="50" />
+          <Property Name="Description" Type="varchar" MaxLength="250" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="UserFID" Type="bigint" />
         </EntityType>
         <EntityType Name="UserProfile">
           <Key>
@@ -493,6 +504,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_User_UserAccess">
+          <End Role="User" Type="Self.User" Multiplicity="0..1" />
+          <End Role="UserAccess" Type="Self.UserAccess" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserPID" />
+            </Principal>
+            <Dependent Role="UserAccess">
+              <PropertyRef Name="UserFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_User_UserProfile">
           <End Role="User" Type="Self.User" Multiplicity="0..1" />
           <End Role="UserProfile" Type="Self.UserProfile" Multiplicity="*" />
@@ -597,6 +620,7 @@
           <EntitySet Name="State" EntityType="Self.State" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Token" EntityType="Self.Token" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="UserAccess" EntityType="Self.UserAccess" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserProfile" EntityType="Self.UserProfile" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="UserType" EntityType="Self.UserType" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Vehicle" EntityType="Self.Vehicle" Schema="dbo" store:Type="Tables" />
@@ -657,6 +681,10 @@
           <AssociationSet Name="FK_User_Token" Association="Self.FK_User_Token">
             <End Role="User" EntitySet="User" />
             <End Role="Token" EntitySet="Token" />
+          </AssociationSet>
+          <AssociationSet Name="FK_User_UserAccess" Association="Self.FK_User_UserAccess">
+            <End Role="User" EntitySet="User" />
+            <End Role="UserAccess" EntitySet="UserAccess" />
           </AssociationSet>
           <AssociationSet Name="FK_User_UserProfile" Association="Self.FK_User_UserProfile">
             <End Role="User" EntitySet="User" />
@@ -769,15 +797,6 @@
             <End Role="RoadLine" EntitySet="RoadLines" />
             <End Role="Contact_RoadLine_Mapping" EntitySet="Contact_RoadLine_Mapping" />
           </AssociationSet>
-          <EntitySet Name="Contacts" EntityType="DBModel.Contact" />
-          <AssociationSet Name="FK_Contact_Contact_RoadLine_Mapping" Association="DBModel.FK_Contact_Contact_RoadLine_Mapping">
-            <End Role="Contact" EntitySet="Contacts" />
-            <End Role="Contact_RoadLine_Mapping" EntitySet="Contact_RoadLine_Mapping" />
-          </AssociationSet>
-          <AssociationSet Name="FK_UserType_Contact" Association="DBModel.FK_UserType_Contact">
-            <End Role="UserType" EntitySet="UserTypes" />
-            <End Role="Contact" EntitySet="Contacts" />
-          </AssociationSet>
           <EntitySet Name="Enquiries" EntityType="DBModel.Enquiry" />
           <AssociationSet Name="FK_Enquiry_Quotation" Association="DBModel.FK_Enquiry_Quotation">
             <End Role="Enquiry" EntitySet="Enquiries" />
@@ -799,6 +818,20 @@
           <AssociationSet Name="FK_Enquiry_Booking" Association="DBModel.FK_Enquiry_Booking">
             <End Role="Enquiry" EntitySet="Enquiries" />
             <End Role="Booking" EntitySet="Bookings" />
+          </AssociationSet>
+          <EntitySet Name="UserAccesses" EntityType="DBModel.UserAccess" />
+          <AssociationSet Name="FK_User_UserAccess" Association="DBModel.FK_User_UserAccess">
+            <End Role="User" EntitySet="Users" />
+            <End Role="UserAccess" EntitySet="UserAccesses" />
+          </AssociationSet>
+          <EntitySet Name="Contacts" EntityType="DBModel.Contact" />
+          <AssociationSet Name="FK_Contact_Contact_RoadLine_Mapping" Association="DBModel.FK_Contact_Contact_RoadLine_Mapping">
+            <End Role="Contact" EntitySet="Contacts" />
+            <End Role="Contact_RoadLine_Mapping" EntitySet="Contact_RoadLine_Mapping" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserType_Contact" Association="DBModel.FK_UserType_Contact">
+            <End Role="UserType" EntitySet="UserTypes" />
+            <End Role="Contact" EntitySet="Contacts" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="Address">
@@ -1081,6 +1114,7 @@
           <NavigationProperty Name="UserProfiles" Relationship="DBModel.FK_User_UserProfile" FromRole="User" ToRole="UserProfile" />
           <NavigationProperty Name="UserType" Relationship="DBModel.FK_UserType_User" FromRole="User" ToRole="UserType" />
           <NavigationProperty Name="Enquiries" Relationship="DBModel.FK_User_Enquiry" FromRole="User" ToRole="Enquiry" />
+          <NavigationProperty Name="UserAccesses" Relationship="DBModel.FK_User_UserAccess" FromRole="User" ToRole="UserAccess" />
         </EntityType>
         <Association Name="FK_User_Address">
           <End Type="DBModel.User" Role="User" Multiplicity="0..1" />
@@ -1262,47 +1296,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="Contact">
-          <Key>
-            <PropertyRef Name="ContactPID" />
-          </Key>
-          <Property Name="ContactPID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="Mobile" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="Rating" Type="Int32" />
-          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="7" />
-          <Property Name="LastUpdated" Type="DateTime" Precision="7" />
-          <Property Name="UserTypeFID" Type="Int32" />
-          <Property Name="DisplayOrder" Type="Int32" />
-          <Property Name="Rank" Type="Int32" />
-          <Property Name="IsActive" Type="Boolean" />
-          <NavigationProperty Name="Contact_RoadLine_Mapping" Relationship="DBModel.FK_Contact_Contact_RoadLine_Mapping" FromRole="Contact" ToRole="Contact_RoadLine_Mapping" />
-          <NavigationProperty Name="UserType" Relationship="DBModel.FK_UserType_Contact" FromRole="Contact" ToRole="UserType" />
-        </EntityType>
-        <Association Name="FK_Contact_Contact_RoadLine_Mapping">
-          <End Type="DBModel.Contact" Role="Contact" Multiplicity="0..1" />
-          <End Type="DBModel.Contact_RoadLine_Mapping" Role="Contact_RoadLine_Mapping" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Contact">
-              <PropertyRef Name="ContactPID" />
-            </Principal>
-            <Dependent Role="Contact_RoadLine_Mapping">
-              <PropertyRef Name="ContactFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_UserType_Contact">
-          <End Type="DBModel.UserType" Role="UserType" Multiplicity="0..1" />
-          <End Type="DBModel.Contact" Role="Contact" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="UserType">
-              <PropertyRef Name="UserTypePID" />
-            </Principal>
-            <Dependent Role="Contact">
-              <PropertyRef Name="UserTypeFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityType Name="Enquiry">
           <Key>
             <PropertyRef Name="EnquiryPID" />
@@ -1412,6 +1405,71 @@
             </Principal>
             <Dependent Role="Booking">
               <PropertyRef Name="EnquiryFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="UserAccess">
+          <Key>
+            <PropertyRef Name="UserAccessPID" />
+          </Key>
+          <Property Name="UserAccessPID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Code" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="UserFID" Type="Int64" />
+          <NavigationProperty Name="User" Relationship="DBModel.FK_User_UserAccess" FromRole="UserAccess" ToRole="User" />
+        </EntityType>
+        <Association Name="FK_User_UserAccess">
+          <End Type="DBModel.User" Role="User" Multiplicity="0..1" />
+          <End Type="DBModel.UserAccess" Role="UserAccess" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserPID" />
+            </Principal>
+            <Dependent Role="UserAccess">
+              <PropertyRef Name="UserFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Contact">
+          <Key>
+            <PropertyRef Name="ContactPID" />
+          </Key>
+          <Property Name="ContactPID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Mobile" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Rating" Type="Int32" />
+          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="LastUpdated" Type="DateTime" Precision="7" />
+          <Property Name="UserTypeFID" Type="Int32" />
+          <Property Name="DisplayOrder" Type="Int32" />
+          <Property Name="Rank" Type="Int32" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="VehicleLength" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Contact_RoadLine_Mapping" Relationship="DBModel.FK_Contact_Contact_RoadLine_Mapping" FromRole="Contact" ToRole="Contact_RoadLine_Mapping" />
+          <NavigationProperty Name="UserType" Relationship="DBModel.FK_UserType_Contact" FromRole="Contact" ToRole="UserType" />
+        </EntityType>
+        <Association Name="FK_Contact_Contact_RoadLine_Mapping">
+          <End Type="DBModel.Contact" Role="Contact" Multiplicity="0..1" />
+          <End Type="DBModel.Contact_RoadLine_Mapping" Role="Contact_RoadLine_Mapping" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Contact">
+              <PropertyRef Name="ContactPID" />
+            </Principal>
+            <Dependent Role="Contact_RoadLine_Mapping">
+              <PropertyRef Name="ContactFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserType_Contact">
+          <End Type="DBModel.UserType" Role="UserType" Multiplicity="0..1" />
+          <End Type="DBModel.Contact" Role="Contact" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UserType">
+              <PropertyRef Name="UserTypePID" />
+            </Principal>
+            <Dependent Role="Contact">
+              <PropertyRef Name="UserTypeFID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1701,22 +1759,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Contacts">
-            <EntityTypeMapping TypeName="DBModel.Contact">
-              <MappingFragment StoreEntitySet="Contact">
-                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-                <ScalarProperty Name="Rank" ColumnName="Rank" />
-                <ScalarProperty Name="DisplayOrder" ColumnName="DisplayOrder" />
-                <ScalarProperty Name="UserTypeFID" ColumnName="UserTypeFID" />
-                <ScalarProperty Name="LastUpdated" ColumnName="LastUpdated" />
-                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
-                <ScalarProperty Name="Rating" ColumnName="Rating" />
-                <ScalarProperty Name="Mobile" ColumnName="Mobile" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="ContactPID" ColumnName="ContactPID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Enquiries">
             <EntityTypeMapping TypeName="DBModel.Enquiry">
               <MappingFragment StoreEntitySet="Enquiry">
@@ -1762,6 +1804,34 @@
                 <ScalarProperty Name="Advance" ColumnName="Advance" />
                 <ScalarProperty Name="Freight" ColumnName="Freight" />
                 <ScalarProperty Name="BookingPID" ColumnName="BookingPID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="UserAccesses">
+            <EntityTypeMapping TypeName="DBModel.UserAccess">
+              <MappingFragment StoreEntitySet="UserAccess">
+                <ScalarProperty Name="UserFID" ColumnName="UserFID" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Code" ColumnName="Code" />
+                <ScalarProperty Name="UserAccessPID" ColumnName="UserAccessPID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Contacts">
+            <EntityTypeMapping TypeName="DBModel.Contact">
+              <MappingFragment StoreEntitySet="Contact">
+                <ScalarProperty Name="VehicleLength" ColumnName="VehicleLength" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Rank" ColumnName="Rank" />
+                <ScalarProperty Name="DisplayOrder" ColumnName="DisplayOrder" />
+                <ScalarProperty Name="UserTypeFID" ColumnName="UserTypeFID" />
+                <ScalarProperty Name="LastUpdated" ColumnName="LastUpdated" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="Rating" ColumnName="Rating" />
+                <ScalarProperty Name="Mobile" ColumnName="Mobile" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ContactPID" ColumnName="ContactPID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

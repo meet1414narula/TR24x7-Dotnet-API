@@ -129,6 +129,9 @@
     <Compile Include="User.cs">
       <DependentUpon>DBDataModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="UserAccess.cs">
+      <DependentUpon>DBDataModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="UserProfile.cs">
       <DependentUpon>DBDataModel.tt</DependentUpon>
     </Compile>

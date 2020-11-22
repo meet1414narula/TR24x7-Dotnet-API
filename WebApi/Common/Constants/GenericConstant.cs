@@ -68,6 +68,8 @@
             public const string MAX_LENGTH = "MaxLength";
             public const string MIN_WEIGHT = "MinWeight";
             public const string MIN_LENGTH = "MinLength";
+            public const string CREATED_DATE = "CreatedDate";
+            public const string MOVING_DATE = "MovingDate";
         }
     }
 }

@@ -12,5 +12,7 @@ namespace BusinessEntities
         public string Password { get; set; }
         public string Name { get; set; }
         public string Token { get; set; }
+
+        public bool AllowUserEdit { get; set; }
     }
 }

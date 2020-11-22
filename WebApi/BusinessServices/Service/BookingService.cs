@@ -73,13 +73,35 @@ namespace BusinessServices
         /// Fetches all the goodss.
         /// </summary>
         /// <returns></returns>
-        public List<BusinessEntities.BookingResponseEntity> GetAllQuotations()
+        public List<BusinessEntities.BookingResponseEntity> GetAllQuotations(int userId)
         {
-            var enquiries = _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x=>x.CreationDate).ToList();
+            var enquiries = GetEnquiriesByUserAccess(userId);
             var quotations = _unitOfWork.BookingRepository.GetMany(x=>x.Freight !=null && x.Freight !=0).OrderByDescending(x => x.CreationDate).ToList();
             if (enquiries.Any() && quotations.Any())
             {
                 return MapQuotations(enquiries,quotations);
+            }
+            return null;
+        }
+
+        private List<Enquiry> GetEnquiriesByUserAccess(int userId)
+        {
+            var userAccess = _unitOfWork.UserAccessRepository.GetMany(x => x.UserFID == userId && x.IsActive == true).Select(x => x.Code).ToList();
+            if (userAccess.Contains("AB"))
+            {
+                return _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x => x.CreationDate).ToList();
+            }
+
+            return _unitOfWork.EnquiryRepository.GetMany(x => x.UserFID == userId).OrderByDescending(x => x.CreationDate).ToList(); ;
+        }
+
+        public List<BusinessEntities.BookingResponseEntity> GetAllQuotations()
+        {
+            var enquiries = _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x => x.CreationDate).ToList();
+            var quotations = _unitOfWork.BookingRepository.GetMany(x => x.Freight != null && x.Freight != 0).OrderByDescending(x => x.CreationDate).ToList();
+            if (enquiries.Any() && quotations.Any())
+            {
+                return MapQuotations(enquiries, quotations);
             }
             return null;
         }
@@ -192,6 +214,11 @@ namespace BusinessServices
                 //update enquiry as well
                 var enq = _unitOfWork.EnquiryRepository.GetByID(goodsEntity.EnquiryId);
                 enq.Status = goodsEntity.Status;
+                if (!string.IsNullOrEmpty(goodsEntity.FromAddress))
+                    enq.FromAddress = goodsEntity.FromAddress;
+                if (!string.IsNullOrEmpty(goodsEntity.ToAddress))
+                    enq.ToAddress = goodsEntity.ToAddress;
+
                 _unitOfWork.EnquiryRepository.Update(enq);
 
                 _unitOfWork.Save();
@@ -295,7 +322,8 @@ namespace BusinessServices
           
             if (bookings != null && bookings.Count() > 0)
             {
-                bookings = bookings.OrderByDescending(x => x.CreationDate).ToList();
+                var enqIds = enquiries.Select(x => x.EnquiryPID).ToList();
+                bookings = bookings.Where(x => enqIds.Contains(Convert.ToInt64(x.EnquiryFID))).OrderByDescending(x => x.CreationDate).ToList();
 
                 listGoodsEntity.AddRange(bookings.Select(bk =>
                 {
@@ -305,9 +333,9 @@ namespace BusinessServices
                         return new BookingResponseEntity
                         {
                             EnquiryId = Convert.ToInt32(enquiry.EnquiryPID),
-                            LoadingCharges = bk.LoadingCharges,
-                            UnloadingCharges = bk.UnloadingCharges,
-                            PackagingCharges = bk.PackagingCharges,
+                            LoadingCharges = !string.IsNullOrEmpty(bk.LoadingCharges) ? bk.LoadingCharges:"" ,
+                            UnloadingCharges = !string.IsNullOrEmpty(bk.UnloadingCharges) ? bk.UnloadingCharges : "",
+                            PackagingCharges = !string.IsNullOrEmpty(bk.PackagingCharges) ? bk.PackagingCharges : "",
                             Freight = Convert.ToInt32(bk.Freight),
                             Advance = Convert.ToString(bk.Advance),
                             From = enquiry.From,
@@ -324,7 +352,7 @@ namespace BusinessServices
                             ImgVehicleType = enquiry.VehicleType.Type.ToLower().Replace(" ", ""),
                             VehicleLength = enquiry.VehicleLength,
                             Status = enquiry.Status,
-                            ValidTill = enquiry.ExpiryDate,
+                            ValidTill = bk.DOM,
                             UserId = Convert.ToInt64(enquiry.UserFID),
                             TotalCharges = GetTotalCharges(new List<string> { Convert.ToString(bk.Freight),bk.LoadingCharges,bk.UnloadingCharges,bk.PackagingCharges }),
                             Comments = GetComments(new Dictionary<string, string> { {"Freight", Convert.ToString(bk.Freight) },{ "Loading", bk.LoadingCharges },{ "Unloading", bk.UnloadingCharges },{ "Packaging", bk.PackagingCharges } }),

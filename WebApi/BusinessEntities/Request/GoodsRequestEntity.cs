@@ -65,7 +65,7 @@ namespace BusinessEntities
         public bool IsActive { get; set; }
         public int VehicleType { get; set; }
         public int MaterialType { get; set; }
-        public long UserId { get; set; }
+        public int UserId { get; set; }
     }
 
     public class QuoteRequestEntity
@@ -99,8 +99,9 @@ namespace BusinessEntities
         public long UserId { get; set; }
     }
 
-    public class BookingRequestEntity:QuotationRequestEntity
+    public class BookingRequestEntity:EnquiryRequestEntity
     {
+        public int EnquiryId { get; set; }
         public int Advance { get; set; }
     }
 }

@@ -13,11 +13,17 @@ namespace BusinessEntities
 
         public List<EnquiryStatusEntity> EnquiryStatus { get; set; }
 
+        public List<CreatedDateEntity> CreatedDateFilter { get; set; }
+
+        public List<MovingDateEntity> MovingDateFilter { get; set; }
+
         public List<int> MaxWeights { get; set; }
         public List<CityEntity> Cities { get; set; }
         public List<CityEntity> States { get; set; }
         public List<VehicleTypeEntity> VehicleTypes { get; set; }
         public List<UserTypeEntity> UserTypes { get; set; }
+
+        public List<UserDetailsEntity> UserDetails { get; set; }
         public List<UserProfessionEntity> UserProfessions { get; set; }
         public List<VehicleCompanyEntity> VehicleCompanies { get; set; }
         public List<MaterialTypeEntity> MaterialTypes { get; set; }
@@ -29,6 +35,20 @@ namespace BusinessEntities
         public int Id { get; set; }
         public string Type { get; set; }
         public int DisplayOrder { get; set; }
+    }
+
+    public class CreatedDateEntity
+    {
+        public int Id { get; set; }
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class MovingDateEntity
+    {
+        public int Id { get; set; }
+        public string Key { get; set; }
+        public string Value { get; set; }
     }
 
     public class RoadLineEntity
@@ -47,6 +67,12 @@ namespace BusinessEntities
     {
         public int Id { get; set; }
         public string Type { get; set; }
+    }
+
+    public class UserDetailsEntity
+    {
+        public int Id { get; set; }
+        public string Mobile { get; set; }
     }
 
     public class UserProfessionEntity

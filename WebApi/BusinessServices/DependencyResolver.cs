@@ -13,6 +13,7 @@ namespace BusinessServices
             registerComponent.RegisterType<IOTPService, OTPServices>();
             registerComponent.RegisterType<IGoodsService, GoodsService>();
             registerComponent.RegisterType<IEnquiryService, EnquiryService>();
+            registerComponent.RegisterType<IContactService, ContactService>();
             registerComponent.RegisterType<IQuotationService, QuotationService>();
             registerComponent.RegisterType<IBookingService, BookingService>();
             registerComponent.RegisterType<IUserService, UserService>();

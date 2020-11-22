@@ -34,8 +34,9 @@ namespace WebApi.Controllers
         [HttpGet]
         [HttpOptions]
         [ActionName("GetAllContacts")]
-        public HttpResponseMessage GetAllContacts(List<int> roadLines)
+        public HttpResponseMessage GetAllContacts()
         {
+            List<int> roadLines = new List<int>();
             var enquiryEntities = _goodsServices.GetAllContacts(roadLines);
             if (enquiryEntities !=null)
             {
@@ -48,32 +49,48 @@ namespace WebApi.Controllers
            // throw new Exception("Goods not found");
         }
 
+        [HttpGet]
+        [HttpOptions]
+        [ActionName("GetContact")]
+        public HttpResponseMessage GetContact([FromUri] int contactId)
+        {
+            var goodsEntity = _goodsServices.GetContact(contactId);
+            if (goodsEntity != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, goodsEntity);
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            // throw new Exception("Goods not found");
+        }
+
         // POST api/AddGoods
         [HttpPost]
         [HttpOptions]
         [ActionName("AddContact")]
         public HttpResponseMessage AddContact([FromBody] ContactRequestEntity goodsEntity)
         {
-            if(goodsEntity == null)
+            if (goodsEntity == null)
             {
-               return  Request.CreateResponse(HttpStatusCode.OK);
+                return Request.CreateResponse(HttpStatusCode.OK);
             }
-            var goodsId= _goodsServices.CreateContact(goodsEntity);
+            var goodsId = _goodsServices.CreateContact(goodsEntity);
             var response = Request.CreateResponse(HttpStatusCode.OK, goodsId);
             return response;
         }
 
-
         // POST api/AddGoods
         [HttpPost]
         [HttpOptions]
-        public HttpResponseMessage UpdateContact([FromUri]int enquiryId, ContactRequestEntity goodsEntity)
+        public HttpResponseMessage UpdateContact([FromUri]int contactId, ContactRequestEntity goodsEntity)
         {
             if (goodsEntity == null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
-            var success= _goodsServices.UpdateContact(enquiryId,goodsEntity);
+            var success= _goodsServices.UpdateContact(contactId,goodsEntity);
             var response = Request.CreateResponse(HttpStatusCode.OK, success);
             return response;
         }
@@ -87,16 +104,23 @@ namespace WebApi.Controllers
         [HttpDelete]
         [HttpOptions]
         [ActionName("DeleteContact")]
-        public HttpResponseMessage DeleteContact([FromUri]int enquiryId)
+        public HttpResponseMessage DeleteContact([FromUri]int contactId)
         {
-            if (enquiryId == 0)
+            if (contactId == 0)
             {
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
            // goodsEntity.UserId = GetUserId();
-            var success = _goodsServices.DeleteContact(enquiryId);
-            var response = Request.CreateResponse(HttpStatusCode.OK, success);
-            return response;
+            var success = _goodsServices.DeleteContact(contactId);
+            var enquiryEntities = _goodsServices.GetAllContacts();
+            if (enquiryEntities != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
         }
 
         private int GetUserId()

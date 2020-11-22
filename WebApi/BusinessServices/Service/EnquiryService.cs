@@ -73,9 +73,94 @@ namespace BusinessServices
         /// Fetches all the goodss.
         /// </summary>
         /// <returns></returns>
+        public List<BusinessEntities.EnquiryResponseEntity> GetAllEnquiries(int userId)
+        {
+            var goods = GetEnquiriesByUserAccess(userId);
+            
+            if (goods.Any())
+            {
+                return MapGoods(goods);
+            }
+            return null;
+        }
+
+        private List<Enquiry> GetEnquiriesByUserAccess(int userId)
+        {
+            var userAccess = _unitOfWork.UserAccessRepository.GetMany(x => x.UserFID == userId && x.IsActive==true).Select(x=>x.Code).ToList();
+            if(userAccess.Contains("AE"))
+            {
+                return _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x => x.CreationDate).ToList();
+            }
+
+            return _unitOfWork.EnquiryRepository.GetMany(x=>x.UserFID==userId).OrderByDescending(x => x.CreationDate).ToList(); ;
+        }
+
+        public List<BusinessEntities.EnquiryResponseEntity> GetAllEnquiriesByFilter(int userId,List<string> conditions)
+        {
+            var goods = GetFilteredEnquiriesByKeys(conditions,userId);
+
+            if (goods.Any())
+            {
+                return MapGoods(goods);
+            }
+            return null;
+        }
+        private List<Enquiry> GetFilteredEnquiriesByKeys(List<string> conditions,int userId)
+        {
+            var userAccess = _unitOfWork.UserAccessRepository.GetMany(x => x.UserFID == userId && x.IsActive == true).Select(x => x.Code).ToList();
+            List<Enquiry> allEnq = null;
+            List<Enquiry> filteredEnq = null;
+            var utcDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+            var indiaDate = new DateTime(utcDate.Year, utcDate.Month, utcDate.Day, 12, 0, 0);
+            if (userAccess.Contains("AE"))
+            {
+                allEnq = _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x => x.CreationDate).ToList();
+            }
+            else
+            {
+                allEnq = _unitOfWork.EnquiryRepository.GetMany(x => x.UserFID == userId).OrderByDescending(x => x.CreationDate).ToList();
+            }
+
+            foreach (var condition in conditions)
+            {
+                if (condition.Equals("L1M", StringComparison.InvariantCultureIgnoreCase))
+                    filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate.AddDays(-30)).ToList();
+
+                if (condition.Equals("L7D", StringComparison.InvariantCultureIgnoreCase))
+                    filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate.AddDays(-7)).ToList();
+
+                if (condition.Equals("TD", StringComparison.InvariantCultureIgnoreCase))
+                    filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate).ToList();
+
+                if (filteredEnq != null)
+                {
+                    var filEq = filteredEnq.Select(x => x.EnquiryPID).ToList();
+                    if (condition.Equals("F1M", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var fe = allEnq.Where(x => x.ExpiryDate >= indiaDate.AddDays(+30)).ToList();
+                        filteredEnq.AddRange(fe.Where(x => !filEq.Contains(x.EnquiryPID)).ToList());
+                    }
+
+                    if (condition.Equals("F7D", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var fe = allEnq.Where(x => x.ExpiryDate >= indiaDate.AddDays(+7)).ToList();
+                        filteredEnq.AddRange(fe.Where(x => !filEq.Contains(x.EnquiryPID)).ToList());
+                    }
+
+                    if (condition.Equals("MTD", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var fe = allEnq.Where(x => x.ExpiryDate >= indiaDate).ToList();
+                        filteredEnq.AddRange(fe.Where(x => !filEq.Contains(x.EnquiryPID)).ToList());
+                    }
+                }
+            }
+
+            return filteredEnq;
+        }
+
         public List<BusinessEntities.EnquiryResponseEntity> GetAllEnquiries()
         {
-            var goods = _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x=>x.CreationDate).ToList();
+            var goods = _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x => x.CreationDate).ToList();
             if (goods.Any())
             {
                 return MapGoods(goods);
@@ -121,7 +206,6 @@ namespace BusinessServices
                     To = goodsEntity.To,
                     FromAddress = goodsEntity.FromAddress,
                     ToAddress = goodsEntity.ToAddress,
-                    
                     ExpiryDate = expiryDate,// TimeZoneInfo.ConvertTimeFromUtc(goodsEntity.ValidTill.ToUniversalTime(), INDIAN_ZONE),
                     CreationDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE),
                     LastUpdated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE),
@@ -183,6 +267,10 @@ namespace BusinessServices
                         goods.LastUpdated = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
                         if(!string.IsNullOrEmpty(goodsEntity.Comments))
                         goods.Comments = goodsEntity.Comments;
+
+                        if (goodsEntity.UserId !=0)
+                            goods.UserFID = goodsEntity.UserId;
+
                         _unitOfWork.EnquiryRepository.Update(goods);
                         _unitOfWork.Save();
                         scope.Complete();
@@ -207,12 +295,19 @@ namespace BusinessServices
                 {
                     var goods = _unitOfWork.EnquiryRepository.GetByID(goodsId);
                     var quotations = _unitOfWork.QuotationRepository.GetMany(x=>x.EnquiryFID==goodsId);
+                    var bookings = _unitOfWork.BookingRepository.GetMany(x => x.EnquiryFID == goodsId);
                     if (goods != null)
                     {
                         foreach (var item in quotations)
                         {
                             _unitOfWork.QuotationRepository.Delete(item);
                         }
+
+                        foreach (var item in bookings)
+                        {
+                            _unitOfWork.BookingRepository.Delete(item);
+                        }
+
                         _unitOfWork.EnquiryRepository.Delete(goods);
                         _unitOfWork.Save();
                         scope.Complete();
@@ -247,6 +342,7 @@ namespace BusinessServices
                         Freight = Convert.ToInt32(x.Freight),
                         MaterialType = x.MaterialType.Type,
                         VehicleType = x.VehicleType.Type,
+                        CreationDate = x.CreationDate.ToLongDateString(),
                         //ImgVehicleType = GenericConstant.IMAGES_BASE_ADDRESS + x.VehicleType.Type.Replace(" ", "") + GenericConstant.IMG_EXT,
                         ImgVehicleType = x.VehicleType.Type.ToLower().Replace(" ", ""),
                         VehicleLength = x.VehicleLength,

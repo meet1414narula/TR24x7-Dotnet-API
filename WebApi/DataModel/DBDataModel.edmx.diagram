@@ -40,9 +40,6 @@
         <EntityTypeShape EntityType="DBModel.Contact_RoadLine_Mapping" Width="1.5" PointX="8.25" PointY="17.75" />
         <EntityTypeShape EntityType="DBModel.RoadLine" Width="1.5" PointX="6" PointY="34.625" />
         <AssociationConnector Association="DBModel.FK_RoadLine_Contact_RoadLine_Mapping" />
-        <EntityTypeShape EntityType="DBModel.Contact" Width="1.5" PointX="3" PointY="17.125" />
-        <AssociationConnector Association="DBModel.FK_Contact_Contact_RoadLine_Mapping" />
-        <AssociationConnector Association="DBModel.FK_UserType_Contact" />
         <EntityTypeShape EntityType="DBModel.Enquiry" Width="1.5" PointX="11.25" PointY="7.25" />
         <AssociationConnector Association="DBModel.FK_Enquiry_Quotation" />
         <AssociationConnector Association="DBModel.FK_MaterialType_Enquiry" />
@@ -50,6 +47,11 @@
         <AssociationConnector Association="DBModel.FK_VehicleType_Enquiry" />
         <EntityTypeShape EntityType="DBModel.Booking" Width="1.5" PointX="13.5" PointY="13.625" />
         <AssociationConnector Association="DBModel.FK_Enquiry_Booking" />
+        <EntityTypeShape EntityType="DBModel.UserAccess" Width="1.5" PointX="5.25" PointY="37.75" />
+        <AssociationConnector Association="DBModel.FK_User_UserAccess" />
+        <EntityTypeShape EntityType="DBModel.Contact" Width="1.5" PointX="3" PointY="17" />
+        <AssociationConnector Association="DBModel.FK_Contact_Contact_RoadLine_Mapping" />
+        <AssociationConnector Association="DBModel.FK_UserType_Contact" />
         </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

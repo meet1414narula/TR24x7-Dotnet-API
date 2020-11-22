@@ -44,6 +44,7 @@ namespace BusinessServices
         {
             staticDataEntity = new StaticDataEntity();
             var vehicleTypes = _unitOfWork.VehicleTypeRepository.GetAll().ToList();
+            var users = _unitOfWork.UserRepository.GetAll().ToList();
             var enquiryStatus = _unitOfWork.EnquiryStatusRepository.GetAll().ToList();
             var userTypes = _unitOfWork.UserTypeRepository.GetAll().ToList();
             var roadLines = _unitOfWork.RoadLineRepository.GetAll().ToList();
@@ -55,6 +56,9 @@ namespace BusinessServices
             var maxWeight = configKeyValue.Where(x => x.Key == GenericConstant.CONFIGKEYS.MAX_WEIGHT).FirstOrDefault();
             var maxLength = configKeyValue.Where(x => x.Key == GenericConstant.CONFIGKEYS.MAX_LENGTH).FirstOrDefault();
             var minLength = configKeyValue.Where(x => x.Key == GenericConstant.CONFIGKEYS.MIN_LENGTH).FirstOrDefault();
+
+            var filtersCreatedDate = configKeyValue.Where(x => x.Type == GenericConstant.CONFIGKEYS.CREATED_DATE);
+            var filtersMovingDate = configKeyValue.Where(x => x.Type == GenericConstant.CONFIGKEYS.MOVING_DATE);
 
             staticDataEntity.MaxWeights = new List<int>();
             staticDataEntity.MaxWeights = Enumerable.Range(1, Convert.ToInt32(maxWeight.Value)).ToList();
@@ -103,6 +107,51 @@ namespace BusinessServices
                         Id = x.VehicleTypePID,
                         Type = x.Type,
                         DisplayOrder = Convert.ToInt32(x.Description),
+                    };
+                }
+                ));
+            }
+
+
+            if (filtersCreatedDate != null && filtersCreatedDate.Any() )
+            {
+                staticDataEntity.CreatedDateFilter = new List<CreatedDateEntity>();
+                staticDataEntity.CreatedDateFilter.AddRange(filtersCreatedDate.OrderBy(x => x.Value).Select(x =>
+                {
+                    return new CreatedDateEntity
+                    {
+                        Id = x.ConfigKeyValuePID,
+                        Key = x.Key,
+                        Value = x.Value,
+                    };
+                }
+                ));
+            }
+
+            if (filtersMovingDate != null && filtersMovingDate.Any())
+            {
+                staticDataEntity.MovingDateFilter = new List<MovingDateEntity>();
+                staticDataEntity.MovingDateFilter.AddRange(filtersMovingDate.OrderBy(x => x.Value).Select(x =>
+                {
+                    return new MovingDateEntity
+                    {
+                        Id = x.ConfigKeyValuePID,
+                        Key = x.Key,
+                        Value = x.Value,
+                    };
+                }
+                ));
+            }
+
+            if (users != null && users.Count > 0)
+            {
+                staticDataEntity.UserDetails = new List<UserDetailsEntity>();
+                staticDataEntity.UserDetails.AddRange(users.OrderBy(x => x.UserPID).Select(x =>
+                {
+                    return new UserDetailsEntity
+                    {
+                        Id = Convert.ToInt32(x.UserPID),
+                        Mobile= Convert.ToString(x.MobileNumber),
                     };
                 }
                 ));
@@ -184,6 +233,8 @@ namespace BusinessServices
 
             return staticDataEntity;
         }
+
+       
 
         #endregion
     }
