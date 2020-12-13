@@ -9,6 +9,7 @@ namespace BusinessEntities
     {
         public string Name { get; set; }
         public string MobileNumber { get; set; }
+        public string City { get; set; }
         public int Rating { get; set; }
         public int DisplayOrder { get; set; }
         public int Rank { get; set; }
@@ -18,6 +19,11 @@ namespace BusinessEntities
         public List<int> Roadlines { get; set; }
 
         public string OtherRoadlines { get; set; }
+        public string MainRoadlines { get; set; }
+
+        public string Comments { get; set; }
+
+        public string OtherNumbers { get; set; }
 
         public string VehicleLength { get; set; }
     }

@@ -37,7 +37,7 @@ namespace WebApi.Controllers
         public HttpResponseMessage GetAllBookings()
         {
             userId = GetUserId();
-            var enquiryEntities =  _goodsServices.GetAllQuotations(userId);
+            var enquiryEntities =  _goodsServices.GetAllBookings(userId);
             if (enquiryEntities !=null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);
@@ -47,6 +47,23 @@ namespace WebApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
            // throw new Exception("Goods not found");
+        }
+
+        [HttpGet]
+        [HttpOptions]
+        [ActionName("GetAllBookedVehicles")]
+        public HttpResponseMessage GetAllBookedVehicles()
+        {
+            userId = GetUserId();
+            var enquiryEntities = _goodsServices.GetAllBookedVehicles(userId);
+            if (enquiryEntities != null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);
+            }
+            else
+            {
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
         }
 
         // GET api/goods/GetAllGoods
@@ -60,7 +77,7 @@ namespace WebApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             userEntity.UserId = GetUserId();
-            var goodsEntities = _goodsServices.GetGoodsByUser(userEntity);
+            var goodsEntities = _goodsServices.GetBookingsByUser(userEntity);
             if (goodsEntities != null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, goodsEntities);
@@ -78,7 +95,7 @@ namespace WebApi.Controllers
         [ActionName("GetEnquiry")]
         public HttpResponseMessage GetEnquiry([FromUri] int enquiryId)
         {
-            var goodsEntity = _goodsServices.GetGoods(enquiryId);
+            var goodsEntity = _goodsServices.GetBooking(enquiryId);
             if (goodsEntity != null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, goodsEntity); 
@@ -102,7 +119,22 @@ namespace WebApi.Controllers
             }
             goodsEntity.UserId = GetUserId();
             goodsEntity.EnquiryId = enquiryId;
-            var success = _goodsServices.CreateQuotation(goodsEntity);
+            var success = _goodsServices.CreateBooking(goodsEntity);
+            var response = Request.CreateResponse(HttpStatusCode.OK, success);
+            return response;
+        }
+
+        [HttpPost]
+        [HttpOptions]
+        [ActionName("AddBookedVehicle")]
+        public HttpResponseMessage AddBookedVehicle([FromUri]int bookingId, VehicleRequestEntity goodsEntity)
+        {
+            if (goodsEntity == null)
+            {
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            goodsEntity.BookingId = bookingId;
+            var success = _goodsServices.AddVehicle(goodsEntity);
             var response = Request.CreateResponse(HttpStatusCode.OK, success);
             return response;
         }
@@ -118,7 +150,7 @@ namespace WebApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
             goodsEntity.UserId = GetUserId();
-            var success= _goodsServices.UpdateGoods(enquiryId,goodsEntity);
+            var success= _goodsServices.UpdateBooking(enquiryId,goodsEntity);
             var response = Request.CreateResponse(HttpStatusCode.OK, success);
             return response;
         }
@@ -139,8 +171,8 @@ namespace WebApi.Controllers
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
            // goodsEntity.UserId = GetUserId();
-            var success = _goodsServices.DeleteGoods(enquiryId);
-            var enquiryEntities = _goodsServices.GetAllQuotations(GetUserId());
+            var success = _goodsServices.DeleteBooking(enquiryId);
+            var enquiryEntities = _goodsServices.GetAllBookings(GetUserId());
             if (enquiryEntities != null)
             {
                 return Request.CreateResponse(HttpStatusCode.OK, enquiryEntities);

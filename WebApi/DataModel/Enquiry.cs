@@ -17,8 +17,8 @@ namespace DataModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Enquiry()
         {
-            this.Quotations = new HashSet<Quotation>();
             this.Bookings = new HashSet<Booking>();
+            this.Quotations = new HashSet<Quotation>();
         }
     
         public long EnquiryPID { get; set; }
@@ -44,13 +44,15 @@ namespace DataModel
         public string UnloadingCharges { get; set; }
         public string PackagingCharges { get; set; }
         public string Comments { get; set; }
+        public string CreatedBy { get; set; }
+        public string AssignedTo { get; set; }
     
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Booking> Bookings { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Quotation> Quotations { get; set; }
         public virtual MaterialType MaterialType { get; set; }
         public virtual User User { get; set; }
         public virtual VehicleType VehicleType { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Booking> Bookings { get; set; }
     }
 }

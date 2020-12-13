@@ -19,6 +19,8 @@ namespace DataModel.UnitOfWork
         GenericRepository<OTP> OTPRepository { get; }
         GenericRepository<Error> ErrorRepository { get; }
         GenericRepository<City> CityRepository { get; }
+        GenericRepository<BookedVehicle> BookedVehicleRepository { get; }
+
         GenericRepository<MaterialType> MaterialTypeRepository { get; }
         GenericRepository<VehicleType> VehicleTypeRepository { get; }
         GenericRepository<ConfigKeyValue> ConfigKeyValueRepository { get; }

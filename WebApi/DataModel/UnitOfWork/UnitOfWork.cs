@@ -40,6 +40,7 @@ namespace DataModel.UnitOfWork
 
         private GenericRepository<Quotation> _quotationRepository;
         private GenericRepository<Booking> _bookingRepository;
+        private GenericRepository<BookedVehicle> _bookedVehicleRepository;
         #endregion
 
         public UnitOfWork()
@@ -59,6 +60,16 @@ namespace DataModel.UnitOfWork
                 if (this._contactRepository == null)
                     this._contactRepository = new GenericRepository<Contact>(_context);
                 return _contactRepository;
+            }
+        }
+
+        public GenericRepository<BookedVehicle> BookedVehicleRepository
+        {
+            get
+            {
+                if (this._bookedVehicleRepository == null)
+                    this._bookedVehicleRepository = new GenericRepository<BookedVehicle>(_context);
+                return _bookedVehicleRepository;
             }
         }
 

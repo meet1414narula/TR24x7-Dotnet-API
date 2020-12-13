@@ -38,6 +38,40 @@
           <Property Name="VehicleFID" Type="bigint" />
           <Property Name="UserFID" Type="bigint" />
         </EntityType>
+        <EntityType Name="BookedVehicle">
+          <Key>
+            <PropertyRef Name="BookedVehiclePID" />
+          </Key>
+          <Property Name="BookedVehiclePID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Freight" Type="int" />
+          <Property Name="CreationDate" Type="datetime2" Precision="7" />
+          <Property Name="LastUpdated" Type="datetime2" Precision="7" />
+          <Property Name="DateOfBooking" Type="datetime2" Precision="7" />
+          <Property Name="DateOfMoving" Type="datetime2" Precision="7" />
+          <Property Name="DateOfReaching" Type="datetime2" Precision="7" />
+          <Property Name="VehicleLength" Type="varchar" MaxLength="50" />
+          <Property Name="GRNumber" Type="varchar" MaxLength="50" />
+          <Property Name="VehicleNumber" Type="varchar" MaxLength="50" />
+          <Property Name="TransporterName" Type="varchar" MaxLength="250" />
+          <Property Name="TransporterNumber" Type="varchar" MaxLength="250" />
+          <Property Name="DriverName" Type="varchar" MaxLength="250" />
+          <Property Name="DriverNumber" Type="varchar" MaxLength="250" />
+          <Property Name="OwnerName" Type="varchar" MaxLength="250" />
+          <Property Name="OwnerNumber" Type="varchar" MaxLength="250" />
+          <Property Name="Roadlines" Type="varchar" MaxLength="250" />
+          <Property Name="VehiclePayment" Type="varchar" MaxLength="50" />
+          <Property Name="LabourPayment" Type="varchar" MaxLength="50" />
+          <Property Name="OtherPayment" Type="varchar" MaxLength="50" />
+          <Property Name="Rating" Type="int" />
+          <Property Name="Comments" Type="varchar" MaxLength="1000" />
+          <Property Name="ALLIndia" Type="bit" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="VehicleType" Type="varchar" MaxLength="50" />
+          <Property Name="VehicleTypeFID" Type="int" />
+          <Property Name="UserFID" Type="int" />
+          <Property Name="EnquiryId" Type="int" />
+          <Property Name="BookingFID" Type="int" />
+        </EntityType>
         <EntityType Name="Booking">
           <Key>
             <PropertyRef Name="BookingPID" />
@@ -101,6 +135,11 @@
           <Property Name="Rank" Type="int" />
           <Property Name="IsActive" Type="bit" />
           <Property Name="VehicleLength" Type="varchar" MaxLength="100" />
+          <Property Name="City" Type="varchar" MaxLength="250" />
+          <Property Name="OtherNumbers" Type="varchar" MaxLength="250" />
+          <Property Name="Comments" Type="varchar" MaxLength="1000" />
+          <Property Name="OtherRoadlines" Type="varchar" MaxLength="1000" />
+          <Property Name="MainRoadlines" Type="varchar" MaxLength="1000" />
         </EntityType>
         <EntityType Name="Contact_RoadLine_Mapping">
           <Key>
@@ -137,6 +176,8 @@
           <Property Name="UnloadingCharges" Type="varchar" MaxLength="100" />
           <Property Name="PackagingCharges" Type="varchar" MaxLength="100" />
           <Property Name="Comments" Type="varchar" MaxLength="1000" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="1000" />
+          <Property Name="AssignedTo" Type="varchar" MaxLength="100" />
         </EntityType>
         <EntityType Name="EnquiryStatus">
           <Key>
@@ -603,6 +644,7 @@
         <EntityContainer Name="DBModelStoreContainer">
           <EntitySet Name="Address" EntityType="Self.Address" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Bid" EntityType="Self.Bid" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="BookedVehicle" EntityType="Self.BookedVehicle" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Booking" EntityType="Self.Booking" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="City" EntityType="Self.City" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Company" EntityType="Self.Company" Schema="dbo" store:Type="Tables" />
@@ -797,7 +839,27 @@
             <End Role="RoadLine" EntitySet="RoadLines" />
             <End Role="Contact_RoadLine_Mapping" EntitySet="Contact_RoadLine_Mapping" />
           </AssociationSet>
+          <EntitySet Name="Bookings" EntityType="DBModel.Booking" />
+          <EntitySet Name="UserAccesses" EntityType="DBModel.UserAccess" />
+          <AssociationSet Name="FK_User_UserAccess" Association="DBModel.FK_User_UserAccess">
+            <End Role="User" EntitySet="Users" />
+            <End Role="UserAccess" EntitySet="UserAccesses" />
+          </AssociationSet>
+          <EntitySet Name="BookedVehicles" EntityType="DBModel.BookedVehicle" />
+          <EntitySet Name="Contacts" EntityType="DBModel.Contact" />
+          <AssociationSet Name="FK_Contact_Contact_RoadLine_Mapping" Association="DBModel.FK_Contact_Contact_RoadLine_Mapping">
+            <End Role="Contact" EntitySet="Contacts" />
+            <End Role="Contact_RoadLine_Mapping" EntitySet="Contact_RoadLine_Mapping" />
+          </AssociationSet>
+          <AssociationSet Name="FK_UserType_Contact" Association="DBModel.FK_UserType_Contact">
+            <End Role="UserType" EntitySet="UserTypes" />
+            <End Role="Contact" EntitySet="Contacts" />
+          </AssociationSet>
           <EntitySet Name="Enquiries" EntityType="DBModel.Enquiry" />
+          <AssociationSet Name="FK_Enquiry_Booking" Association="DBModel.FK_Enquiry_Booking">
+            <End Role="Enquiry" EntitySet="Enquiries" />
+            <End Role="Booking" EntitySet="Bookings" />
+          </AssociationSet>
           <AssociationSet Name="FK_Enquiry_Quotation" Association="DBModel.FK_Enquiry_Quotation">
             <End Role="Enquiry" EntitySet="Enquiries" />
             <End Role="Quotation" EntitySet="Quotations" />
@@ -813,25 +875,6 @@
           <AssociationSet Name="FK_VehicleType_Enquiry" Association="DBModel.FK_VehicleType_Enquiry">
             <End Role="VehicleType" EntitySet="VehicleTypes" />
             <End Role="Enquiry" EntitySet="Enquiries" />
-          </AssociationSet>
-          <EntitySet Name="Bookings" EntityType="DBModel.Booking" />
-          <AssociationSet Name="FK_Enquiry_Booking" Association="DBModel.FK_Enquiry_Booking">
-            <End Role="Enquiry" EntitySet="Enquiries" />
-            <End Role="Booking" EntitySet="Bookings" />
-          </AssociationSet>
-          <EntitySet Name="UserAccesses" EntityType="DBModel.UserAccess" />
-          <AssociationSet Name="FK_User_UserAccess" Association="DBModel.FK_User_UserAccess">
-            <End Role="User" EntitySet="Users" />
-            <End Role="UserAccess" EntitySet="UserAccesses" />
-          </AssociationSet>
-          <EntitySet Name="Contacts" EntityType="DBModel.Contact" />
-          <AssociationSet Name="FK_Contact_Contact_RoadLine_Mapping" Association="DBModel.FK_Contact_Contact_RoadLine_Mapping">
-            <End Role="Contact" EntitySet="Contacts" />
-            <End Role="Contact_RoadLine_Mapping" EntitySet="Contact_RoadLine_Mapping" />
-          </AssociationSet>
-          <AssociationSet Name="FK_UserType_Contact" Association="DBModel.FK_UserType_Contact">
-            <End Role="UserType" EntitySet="UserTypes" />
-            <End Role="Contact" EntitySet="Contacts" />
           </AssociationSet>
           </EntityContainer>
         <EntityType Name="Address">
@@ -1113,8 +1156,8 @@
           <NavigationProperty Name="Tokens" Relationship="DBModel.FK_User_Token" FromRole="User" ToRole="Token" />
           <NavigationProperty Name="UserProfiles" Relationship="DBModel.FK_User_UserProfile" FromRole="User" ToRole="UserProfile" />
           <NavigationProperty Name="UserType" Relationship="DBModel.FK_UserType_User" FromRole="User" ToRole="UserType" />
-          <NavigationProperty Name="Enquiries" Relationship="DBModel.FK_User_Enquiry" FromRole="User" ToRole="Enquiry" />
           <NavigationProperty Name="UserAccesses" Relationship="DBModel.FK_User_UserAccess" FromRole="User" ToRole="UserAccess" />
+          <NavigationProperty Name="Enquiries" Relationship="DBModel.FK_User_Enquiry" FromRole="User" ToRole="Enquiry" />
         </EntityType>
         <Association Name="FK_User_Address">
           <End Type="DBModel.User" Role="User" Multiplicity="0..1" />
@@ -1296,6 +1339,129 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="Booking">
+          <Key>
+            <PropertyRef Name="BookingPID" />
+          </Key>
+          <Property Name="BookingPID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Freight" Type="Int32" />
+          <Property Name="Advance" Type="Int32" />
+          <Property Name="LoadingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="UnloadingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="PackagingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="LastUpdated" Type="DateTime" Precision="7" />
+          <Property Name="DOM" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="EnquiryFID" Type="Int64" />
+          <Property Name="DisplayOrder" Type="Int32" />
+          <NavigationProperty Name="Enquiry" Relationship="DBModel.FK_Enquiry_Booking" FromRole="Booking" ToRole="Enquiry" />
+        </EntityType>
+        <EntityType Name="UserAccess">
+          <Key>
+            <PropertyRef Name="UserAccessPID" />
+          </Key>
+          <Property Name="UserAccessPID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Code" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="UserFID" Type="Int64" />
+          <NavigationProperty Name="User" Relationship="DBModel.FK_User_UserAccess" FromRole="UserAccess" ToRole="User" />
+        </EntityType>
+        <Association Name="FK_User_UserAccess">
+          <End Type="DBModel.User" Role="User" Multiplicity="0..1" />
+          <End Type="DBModel.UserAccess" Role="UserAccess" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserPID" />
+            </Principal>
+            <Dependent Role="UserAccess">
+              <PropertyRef Name="UserFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="BookedVehicle">
+          <Key>
+            <PropertyRef Name="BookedVehiclePID" />
+          </Key>
+          <Property Name="BookedVehiclePID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Freight" Type="Int32" />
+          <Property Name="CreationDate" Type="DateTime" Precision="7" />
+          <Property Name="LastUpdated" Type="DateTime" Precision="7" />
+          <Property Name="DateOfBooking" Type="DateTime" Precision="7" />
+          <Property Name="DateOfMoving" Type="DateTime" Precision="7" />
+          <Property Name="DateOfReaching" Type="DateTime" Precision="7" />
+          <Property Name="VehicleLength" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="GRNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="VehicleNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TransporterName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="TransporterNumber" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="DriverName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="DriverNumber" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OwnerName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OwnerNumber" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Roadlines" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="VehiclePayment" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="LabourPayment" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="OtherPayment" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Rating" Type="Int32" />
+          <Property Name="Comments" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="ALLIndia" Type="Boolean" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="VehicleType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="VehicleTypeFID" Type="Int32" />
+          <Property Name="UserFID" Type="Int32" />
+          <Property Name="EnquiryId" Type="Int32" />
+          <Property Name="BookingFID" Type="Int32" />
+        </EntityType>
+        <EntityType Name="Contact">
+          <Key>
+            <PropertyRef Name="ContactPID" />
+          </Key>
+          <Property Name="ContactPID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Mobile" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Rating" Type="Int32" />
+          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="LastUpdated" Type="DateTime" Precision="7" />
+          <Property Name="UserTypeFID" Type="Int32" />
+          <Property Name="DisplayOrder" Type="Int32" />
+          <Property Name="Rank" Type="Int32" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="VehicleLength" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="City" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OtherNumbers" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Comments" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="OtherRoadlines" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="MainRoadlines" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Contact_RoadLine_Mapping" Relationship="DBModel.FK_Contact_Contact_RoadLine_Mapping" FromRole="Contact" ToRole="Contact_RoadLine_Mapping" />
+          <NavigationProperty Name="UserType" Relationship="DBModel.FK_UserType_Contact" FromRole="Contact" ToRole="UserType" />
+        </EntityType>
+        <Association Name="FK_Contact_Contact_RoadLine_Mapping">
+          <End Type="DBModel.Contact" Role="Contact" Multiplicity="0..1" />
+          <End Type="DBModel.Contact_RoadLine_Mapping" Role="Contact_RoadLine_Mapping" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Contact">
+              <PropertyRef Name="ContactPID" />
+            </Principal>
+            <Dependent Role="Contact_RoadLine_Mapping">
+              <PropertyRef Name="ContactFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_UserType_Contact">
+          <End Type="DBModel.UserType" Role="UserType" Multiplicity="0..1" />
+          <End Type="DBModel.Contact" Role="Contact" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="UserType">
+              <PropertyRef Name="UserTypePID" />
+            </Principal>
+            <Dependent Role="Contact">
+              <PropertyRef Name="UserTypeFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <EntityType Name="Enquiry">
           <Key>
             <PropertyRef Name="EnquiryPID" />
@@ -1323,12 +1489,26 @@
           <Property Name="UnloadingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="PackagingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Comments" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedBy" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="AssignedTo" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Bookings" Relationship="DBModel.FK_Enquiry_Booking" FromRole="Enquiry" ToRole="Booking" />
           <NavigationProperty Name="Quotations" Relationship="DBModel.FK_Enquiry_Quotation" FromRole="Enquiry" ToRole="Quotation" />
           <NavigationProperty Name="MaterialType" Relationship="DBModel.FK_MaterialType_Enquiry" FromRole="Enquiry" ToRole="MaterialType" />
           <NavigationProperty Name="User" Relationship="DBModel.FK_User_Enquiry" FromRole="Enquiry" ToRole="User" />
           <NavigationProperty Name="VehicleType" Relationship="DBModel.FK_VehicleType_Enquiry" FromRole="Enquiry" ToRole="VehicleType" />
-          <NavigationProperty Name="Bookings" Relationship="DBModel.FK_Enquiry_Booking" FromRole="Enquiry" ToRole="Booking" />
         </EntityType>
+        <Association Name="FK_Enquiry_Booking">
+          <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="0..1" />
+          <End Type="DBModel.Booking" Role="Booking" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Enquiry">
+              <PropertyRef Name="EnquiryPID" />
+            </Principal>
+            <Dependent Role="Booking">
+              <PropertyRef Name="EnquiryFID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Enquiry_Quotation">
           <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="0..1" />
           <End Type="DBModel.Quotation" Role="Quotation" Multiplicity="*" />
@@ -1374,102 +1554,6 @@
             </Principal>
             <Dependent Role="Enquiry">
               <PropertyRef Name="VehicleTypeFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="Booking">
-          <Key>
-            <PropertyRef Name="BookingPID" />
-          </Key>
-          <Property Name="BookingPID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Freight" Type="Int32" />
-          <Property Name="Advance" Type="Int32" />
-          <Property Name="LoadingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="UnloadingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="PackagingCharges" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="7" />
-          <Property Name="LastUpdated" Type="DateTime" Precision="7" />
-          <Property Name="DOM" Type="DateTime" Nullable="false" Precision="7" />
-          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="IsActive" Type="Boolean" />
-          <Property Name="EnquiryFID" Type="Int64" />
-          <Property Name="DisplayOrder" Type="Int32" />
-          <NavigationProperty Name="Enquiry" Relationship="DBModel.FK_Enquiry_Booking" FromRole="Booking" ToRole="Enquiry" />
-        </EntityType>
-        <Association Name="FK_Enquiry_Booking">
-          <End Type="DBModel.Enquiry" Role="Enquiry" Multiplicity="0..1" />
-          <End Type="DBModel.Booking" Role="Booking" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Enquiry">
-              <PropertyRef Name="EnquiryPID" />
-            </Principal>
-            <Dependent Role="Booking">
-              <PropertyRef Name="EnquiryFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="UserAccess">
-          <Key>
-            <PropertyRef Name="UserAccessPID" />
-          </Key>
-          <Property Name="UserAccessPID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Code" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Description" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="IsActive" Type="Boolean" />
-          <Property Name="UserFID" Type="Int64" />
-          <NavigationProperty Name="User" Relationship="DBModel.FK_User_UserAccess" FromRole="UserAccess" ToRole="User" />
-        </EntityType>
-        <Association Name="FK_User_UserAccess">
-          <End Type="DBModel.User" Role="User" Multiplicity="0..1" />
-          <End Type="DBModel.UserAccess" Role="UserAccess" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="User">
-              <PropertyRef Name="UserPID" />
-            </Principal>
-            <Dependent Role="UserAccess">
-              <PropertyRef Name="UserFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="Contact">
-          <Key>
-            <PropertyRef Name="ContactPID" />
-          </Key>
-          <Property Name="ContactPID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="Mobile" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
-          <Property Name="Rating" Type="Int32" />
-          <Property Name="CreationDate" Type="DateTime" Nullable="false" Precision="7" />
-          <Property Name="LastUpdated" Type="DateTime" Precision="7" />
-          <Property Name="UserTypeFID" Type="Int32" />
-          <Property Name="DisplayOrder" Type="Int32" />
-          <Property Name="Rank" Type="Int32" />
-          <Property Name="IsActive" Type="Boolean" />
-          <Property Name="VehicleLength" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="Contact_RoadLine_Mapping" Relationship="DBModel.FK_Contact_Contact_RoadLine_Mapping" FromRole="Contact" ToRole="Contact_RoadLine_Mapping" />
-          <NavigationProperty Name="UserType" Relationship="DBModel.FK_UserType_Contact" FromRole="Contact" ToRole="UserType" />
-        </EntityType>
-        <Association Name="FK_Contact_Contact_RoadLine_Mapping">
-          <End Type="DBModel.Contact" Role="Contact" Multiplicity="0..1" />
-          <End Type="DBModel.Contact_RoadLine_Mapping" Role="Contact_RoadLine_Mapping" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Contact">
-              <PropertyRef Name="ContactPID" />
-            </Principal>
-            <Dependent Role="Contact_RoadLine_Mapping">
-              <PropertyRef Name="ContactFID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_UserType_Contact">
-          <End Type="DBModel.UserType" Role="UserType" Multiplicity="0..1" />
-          <End Type="DBModel.Contact" Role="Contact" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="UserType">
-              <PropertyRef Name="UserTypePID" />
-            </Principal>
-            <Dependent Role="Contact">
-              <PropertyRef Name="UserTypeFID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1759,35 +1843,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Enquiries">
-            <EntityTypeMapping TypeName="DBModel.Enquiry">
-              <MappingFragment StoreEntitySet="Enquiry">
-                <ScalarProperty Name="Comments" ColumnName="Comments" />
-                <ScalarProperty Name="PackagingCharges" ColumnName="PackagingCharges" />
-                <ScalarProperty Name="UnloadingCharges" ColumnName="UnloadingCharges" />
-                <ScalarProperty Name="LoadingCharges" ColumnName="LoadingCharges" />
-                <ScalarProperty Name="UserFID" ColumnName="UserFID" />
-                <ScalarProperty Name="MaterialTypeFID" ColumnName="MaterialTypeFID" />
-                <ScalarProperty Name="VehicleTypeFID" ColumnName="VehicleTypeFID" />
-                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="VehicleLength" ColumnName="VehicleLength" />
-                <ScalarProperty Name="ExpiryDate" ColumnName="ExpiryDate" />
-                <ScalarProperty Name="LastUpdated" ColumnName="LastUpdated" />
-                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
-                <ScalarProperty Name="Freight" ColumnName="Freight" />
-                <ScalarProperty Name="MaxWeight" ColumnName="MaxWeight" />
-                <ScalarProperty Name="MinWeight" ColumnName="MinWeight" />
-                <ScalarProperty Name="MobileNumber" ColumnName="MobileNumber" />
-                <ScalarProperty Name="Name" ColumnName="Name" />
-                <ScalarProperty Name="ToAddress" ColumnName="ToAddress" />
-                <ScalarProperty Name="FromAddress" ColumnName="FromAddress" />
-                <ScalarProperty Name="To" ColumnName="To" />
-                <ScalarProperty Name="From" ColumnName="From" />
-                <ScalarProperty Name="EnquiryPID" ColumnName="EnquiryPID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Bookings">
             <EntityTypeMapping TypeName="DBModel.Booking">
               <MappingFragment StoreEntitySet="Booking">
@@ -1818,9 +1873,49 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="BookedVehicles">
+            <EntityTypeMapping TypeName="DBModel.BookedVehicle">
+              <MappingFragment StoreEntitySet="BookedVehicle">
+                <ScalarProperty Name="BookingFID" ColumnName="BookingFID" />
+                <ScalarProperty Name="EnquiryId" ColumnName="EnquiryId" />
+                <ScalarProperty Name="UserFID" ColumnName="UserFID" />
+                <ScalarProperty Name="VehicleTypeFID" ColumnName="VehicleTypeFID" />
+                <ScalarProperty Name="VehicleType" ColumnName="VehicleType" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ALLIndia" ColumnName="ALLIndia" />
+                <ScalarProperty Name="Comments" ColumnName="Comments" />
+                <ScalarProperty Name="Rating" ColumnName="Rating" />
+                <ScalarProperty Name="OtherPayment" ColumnName="OtherPayment" />
+                <ScalarProperty Name="LabourPayment" ColumnName="LabourPayment" />
+                <ScalarProperty Name="VehiclePayment" ColumnName="VehiclePayment" />
+                <ScalarProperty Name="Roadlines" ColumnName="Roadlines" />
+                <ScalarProperty Name="OwnerNumber" ColumnName="OwnerNumber" />
+                <ScalarProperty Name="OwnerName" ColumnName="OwnerName" />
+                <ScalarProperty Name="DriverNumber" ColumnName="DriverNumber" />
+                <ScalarProperty Name="DriverName" ColumnName="DriverName" />
+                <ScalarProperty Name="TransporterNumber" ColumnName="TransporterNumber" />
+                <ScalarProperty Name="TransporterName" ColumnName="TransporterName" />
+                <ScalarProperty Name="VehicleNumber" ColumnName="VehicleNumber" />
+                <ScalarProperty Name="GRNumber" ColumnName="GRNumber" />
+                <ScalarProperty Name="VehicleLength" ColumnName="VehicleLength" />
+                <ScalarProperty Name="DateOfReaching" ColumnName="DateOfReaching" />
+                <ScalarProperty Name="DateOfMoving" ColumnName="DateOfMoving" />
+                <ScalarProperty Name="DateOfBooking" ColumnName="DateOfBooking" />
+                <ScalarProperty Name="LastUpdated" ColumnName="LastUpdated" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="Freight" ColumnName="Freight" />
+                <ScalarProperty Name="BookedVehiclePID" ColumnName="BookedVehiclePID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Contacts">
             <EntityTypeMapping TypeName="DBModel.Contact">
               <MappingFragment StoreEntitySet="Contact">
+                <ScalarProperty Name="MainRoadlines" ColumnName="MainRoadlines" />
+                <ScalarProperty Name="OtherRoadlines" ColumnName="OtherRoadlines" />
+                <ScalarProperty Name="Comments" ColumnName="Comments" />
+                <ScalarProperty Name="OtherNumbers" ColumnName="OtherNumbers" />
+                <ScalarProperty Name="City" ColumnName="City" />
                 <ScalarProperty Name="VehicleLength" ColumnName="VehicleLength" />
                 <ScalarProperty Name="IsActive" ColumnName="IsActive" />
                 <ScalarProperty Name="Rank" ColumnName="Rank" />
@@ -1832,6 +1927,37 @@
                 <ScalarProperty Name="Mobile" ColumnName="Mobile" />
                 <ScalarProperty Name="Name" ColumnName="Name" />
                 <ScalarProperty Name="ContactPID" ColumnName="ContactPID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Enquiries">
+            <EntityTypeMapping TypeName="DBModel.Enquiry">
+              <MappingFragment StoreEntitySet="Enquiry">
+                <ScalarProperty Name="AssignedTo" ColumnName="AssignedTo" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="Comments" ColumnName="Comments" />
+                <ScalarProperty Name="PackagingCharges" ColumnName="PackagingCharges" />
+                <ScalarProperty Name="UnloadingCharges" ColumnName="UnloadingCharges" />
+                <ScalarProperty Name="LoadingCharges" ColumnName="LoadingCharges" />
+                <ScalarProperty Name="UserFID" ColumnName="UserFID" />
+                <ScalarProperty Name="MaterialTypeFID" ColumnName="MaterialTypeFID" />
+                <ScalarProperty Name="VehicleTypeFID" ColumnName="VehicleTypeFID" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="VehicleLength" ColumnName="VehicleLength" />
+                <ScalarProperty Name="ExpiryDate" ColumnName="ExpiryDate" />
+                <ScalarProperty Name="LastUpdated" ColumnName="LastUpdated" />
+                <ScalarProperty Name="CreationDate" ColumnName="CreationDate" />
+                <ScalarProperty Name="Freight" ColumnName="Freight" />
+                <ScalarProperty Name="MaxWeight" ColumnName="MaxWeight" />
+                <ScalarProperty Name="MinWeight" ColumnName="MinWeight" />
+                <ScalarProperty Name="MobileNumber" ColumnName="MobileNumber" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="ToAddress" ColumnName="ToAddress" />
+                <ScalarProperty Name="FromAddress" ColumnName="FromAddress" />
+                <ScalarProperty Name="To" ColumnName="To" />
+                <ScalarProperty Name="From" ColumnName="From" />
+                <ScalarProperty Name="EnquiryPID" ColumnName="EnquiryPID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

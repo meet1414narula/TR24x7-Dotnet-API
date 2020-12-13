@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using BusinessEntities;
 
 namespace BusinessServices
@@ -9,5 +10,6 @@ namespace BusinessServices
     public interface IHelperService
     {
         StaticDataEntity GetStaticData();
+        DateTime GetDate(DateTime dt,bool time=false);
     }
 }

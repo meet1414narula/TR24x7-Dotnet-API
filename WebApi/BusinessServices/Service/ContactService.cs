@@ -54,7 +54,7 @@ namespace BusinessServices
                 var contact = new Contact
                 {
                     Name = contactEntity.Name,
-                    Mobile= contactEntity.MobileNumber,
+                    Mobile = contactEntity.MobileNumber,
                     Rating = contactEntity.Rating,
                     DisplayOrder = contactEntity.DisplayOrder,
                     Rank = contactEntity.Rank,
@@ -63,9 +63,32 @@ namespace BusinessServices
                     UserTypeFID = contactEntity.ContactTypeId,
                     IsActive = true,
                     VehicleLength = contactEntity.VehicleLength,
+                    City = contactEntity.City
                 };
 
+                if (!string.IsNullOrEmpty(contactEntity.OtherNumbers))
+                {
+                    contact.OtherNumbers = contactEntity.OtherNumbers;
+                }
+
+                if (!string.IsNullOrEmpty(contactEntity.Comments))
+                {
+                    contact.Comments = contactEntity.Comments;
+                }
+
+                if (!string.IsNullOrEmpty(contactEntity.OtherRoadlines))
+                {
+                    contact.OtherRoadlines = contactEntity.OtherRoadlines;
+                }
+
+                if (!string.IsNullOrEmpty(contactEntity.MainRoadlines))
+                {
+                    contact.MainRoadlines = contactEntity.MainRoadlines;
+                }
+
                 _unitOfWork.ContactRepository.Insert(contact);
+
+
                 // _unitOfWork.Save();
 
                 if (!string.IsNullOrEmpty(contactEntity.OtherRoadlines))
@@ -79,12 +102,15 @@ namespace BusinessServices
                             Rank = contactEntity.Rank,
                             IsActive = true
                         };
+
+                        var roadLine = _unitOfWork.RoadLineRepository.Get(x => x.Name.Equals(item, StringComparison.InvariantCultureIgnoreCase));
+                        if(roadLine==null)
                         _unitOfWork.RoadLineRepository.Insert(roadline);
 
                         var contactRoadline = new Contact_RoadLine_Mapping
                         {
                             ContactFID = contact.ContactPID,
-                            RoadLineFID = roadline.RoadLinePID
+                            RoadLineFID = roadLine !=null ? roadLine.RoadLinePID: roadline.RoadLinePID
                         };
                         _unitOfWork.ContactRoadLineMappingRepository.Insert(contactRoadline);
 
@@ -177,7 +203,12 @@ namespace BusinessServices
                         Mobile = item.Mobile,
                         Rating = Convert.ToInt32(item.Rating),
                         VehicleLength =item.VehicleLength,
-                        ContactType = item.UserType.Type
+                        ContactType = item.UserType.Type,
+                        City =item.City,
+                        Comments = item.Comments,
+                        OtherNumbers = item.OtherNumbers,
+                        MainRoadlines = item.MainRoadlines,
+                        OtherRoadlines =item.OtherRoadlines
                     };
 
                     contactResponseEntity.RoadLines = new List<RoadLineResponseEntity>();
@@ -186,6 +217,7 @@ namespace BusinessServices
                     {
                         if (rd.RoadLine != null)
                         {
+                            contactResponseEntity.Roadlines = contactResponseEntity.Roadlines + rd.RoadLine.Name + ",";
                             RoadLineResponseEntity roadLineResponseEntity = new RoadLineResponseEntity
                             {
                                 Id = rd.RoadLine.RoadLinePID,
@@ -223,7 +255,11 @@ namespace BusinessServices
                     Name = contact.Name,
                     Mobile = contact.Mobile,
                     Rating = Convert.ToInt32(contact.Rating),
-                    ContactType =Convert.ToString(contact.UserType.UserTypePID)
+                    ContactType =Convert.ToString(contact.UserType.UserTypePID),
+                    City = contact.City,
+                    Comments = contact.Comments,
+                    OtherNumbers = contact.OtherNumbers,
+                    OtherRoadlines = contact.OtherRoadlines
                 };
 
                 contactResponseEntity.RoadLines = new List<RoadLineResponseEntity>();
@@ -232,6 +268,7 @@ namespace BusinessServices
                 {
                     if (rd.RoadLine != null)
                     {
+                        contactResponseEntity.Roadlines = contactResponseEntity.Roadlines + rd.RoadLine.Name + ",";
                         RoadLineResponseEntity roadLineResponseEntity = new RoadLineResponseEntity
                         {
                             Id = rd.RoadLine.RoadLinePID,

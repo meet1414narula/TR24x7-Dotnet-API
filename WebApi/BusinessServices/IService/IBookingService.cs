@@ -8,15 +8,19 @@ namespace BusinessServices
     /// </summary>
     public interface IBookingService
     {
-        QuotationResponseEntity GetGoods(int goodsId);
-        List<BusinessEntities.BookingResponseEntity> GetAllQuotations(int userId);
+        QuotationResponseEntity GetBooking(int goodsId);
+        List<BusinessEntities.BookingResponseEntity> GetAllBookings(int userId);
 
-        List<BusinessEntities.BookingResponseEntity> GetAllQuotations();
+        List<BusinessEntities.BookedVehicleResponseEntity> GetAllBookedVehicles(int userId);
 
-        List<BusinessEntities.BookingResponseEntity> GetAllQuotes(QuoteRequestEntity quotationRequestEntity);
-        List<GoodsResponseEntity> GetGoodsByUser(UserEntity userEntity);
-        long CreateQuotation(BusinessEntities.BookingRequestEntity goodsEntity);
-        bool UpdateGoods(int goodsId,BookingRequestEntity goodsEntity);
-        bool DeleteGoods(int goodsId);
+        List<BusinessEntities.BookingResponseEntity> GetAllBookings();
+
+        List<BusinessEntities.BookingResponseEntity> GetAllBookings(QuoteRequestEntity quotationRequestEntity);
+        List<GoodsResponseEntity> GetBookingsByUser(UserEntity userEntity);
+        long CreateBooking(BusinessEntities.BookingRequestEntity goodsEntity);
+        bool UpdateBooking(int goodsId,BookingRequestEntity goodsEntity);
+        bool DeleteBooking(int goodsId);
+
+        int AddVehicle(BusinessEntities.VehicleRequestEntity vehicleEntity);
     }
 }

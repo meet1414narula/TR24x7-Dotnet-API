@@ -41,6 +41,8 @@ namespace BusinessEntities
         public int MaxWeight { get; set; }
         public int Freight { get; set; }
         public string CreationDate { get; set; }
+        public string CreatedBy { get; set; }
+        public string AssignedTo { get; set; }
         public DateTime ValidTill { get; set; }
         public string VehicleLength { get; set; }
         public string Status { get; set; }
@@ -77,6 +79,11 @@ namespace BusinessEntities
         public string Advance { get; set; }
 
         public string Comments { get; set; }
+    }
+
+    public class BookedVehicleResponseEntity : VehicleRequestEntity
+    {
+        
     }
 
 

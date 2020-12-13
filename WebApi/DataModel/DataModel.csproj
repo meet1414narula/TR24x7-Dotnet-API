@@ -58,6 +58,9 @@
     <Compile Include="Bid.cs">
       <DependentUpon>DBDataModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="BookedVehicle.cs">
+      <DependentUpon>DBDataModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Booking.cs">
       <DependentUpon>DBDataModel.tt</DependentUpon>
     </Compile>

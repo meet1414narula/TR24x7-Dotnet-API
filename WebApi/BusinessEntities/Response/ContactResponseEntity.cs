@@ -16,7 +16,18 @@ namespace BusinessEntities
 
         public string VehicleLength { get; set; }
 
-        public List<RoadLineResponseEntity> RoadLines { get; set; } 
+        public string OtherNumbers { get; set; }
+
+        public string City { get; set; }
+
+        public string Comments { get; set; }
+
+        public string OtherRoadlines { get; set; }
+        public string MainRoadlines { get; set; }
+
+        public List<RoadLineResponseEntity> RoadLines { get; set; }
+
+        public string Roadlines { get; set; }
     }
 
     public class RoadLineResponseEntity

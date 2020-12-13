@@ -44,7 +44,7 @@ namespace BusinessServices
         {
             staticDataEntity = new StaticDataEntity();
             var vehicleTypes = _unitOfWork.VehicleTypeRepository.GetAll().ToList();
-            var users = _unitOfWork.UserRepository.GetAll().ToList();
+            var users = _unitOfWork.UserRepository.GetMany(x=>x.IsActive == true).ToList();
             var enquiryStatus = _unitOfWork.EnquiryStatusRepository.GetAll().ToList();
             var userTypes = _unitOfWork.UserTypeRepository.GetAll().ToList();
             var roadLines = _unitOfWork.RoadLineRepository.GetAll().ToList();
@@ -234,7 +234,11 @@ namespace BusinessServices
             return staticDataEntity;
         }
 
-       
+       public DateTime GetDate(DateTime dateTime,bool time=false)
+        {
+            DateTime dt = TimeZoneInfo.ConvertTimeFromUtc(dateTime.ToUniversalTime(), INDIAN_ZONE);
+            return time? dt: new DateTime(dt.Year, dt.Month, dt.Day, 0, 0, 0);
+        }
 
         #endregion
     }

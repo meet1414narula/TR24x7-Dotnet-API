@@ -6,10 +6,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using WebApi.ActionFilters;
 
 namespace WebApi.Controllers
 {
     [RoutePrefix("api/Enquiry")]
+    [AuthorizationRequiredAttribute]
     public class EnquiryController : ApiController
     {
         #region Private variable.
@@ -152,6 +154,11 @@ namespace WebApi.Controllers
 
             if (goodsEntity.UserId == 0)
             {
+                goodsEntity.UserId = GetUserId();
+            }
+            else
+            {
+                goodsEntity.AssignedToUserId = goodsEntity.UserId;
                 goodsEntity.UserId = GetUserId();
             }
 

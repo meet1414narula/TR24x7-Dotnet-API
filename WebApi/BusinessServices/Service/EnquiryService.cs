@@ -86,13 +86,14 @@ namespace BusinessServices
 
         private List<Enquiry> GetEnquiriesByUserAccess(int userId)
         {
-            var userAccess = _unitOfWork.UserAccessRepository.GetMany(x => x.UserFID == userId && x.IsActive==true).Select(x=>x.Code).ToList();
-            if(userAccess.Contains("AE"))
-            {
-                return _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x => x.CreationDate).ToList();
-            }
+           return GetFilteredEnquiriesByKeys(new List<string> { "L7D"}, userId);
+            //var userAccess = _unitOfWork.UserAccessRepository.GetMany(x => x.UserFID == userId && x.IsActive==true).Select(x=>x.Code).ToList();
+            //if(userAccess.Contains("AE"))
+            //{
+            //    return _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x => x.CreationDate).ToList();
+            //}
 
-            return _unitOfWork.EnquiryRepository.GetMany(x=>x.UserFID==userId).OrderByDescending(x => x.CreationDate).ToList(); ;
+            //return _unitOfWork.EnquiryRepository.GetMany(x=>x.UserFID==userId).OrderByDescending(x => x.CreationDate).ToList(); ;
         }
 
         public List<BusinessEntities.EnquiryResponseEntity> GetAllEnquiriesByFilter(int userId,List<string> conditions)
@@ -111,7 +112,7 @@ namespace BusinessServices
             List<Enquiry> allEnq = null;
             List<Enquiry> filteredEnq = null;
             var utcDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
-            var indiaDate = new DateTime(utcDate.Year, utcDate.Month, utcDate.Day, 12, 0, 0);
+            var indiaDate = new DateTime(utcDate.Year, utcDate.Month, utcDate.Day, 0, 0, 0);
             if (userAccess.Contains("AE"))
             {
                 allEnq = _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x => x.CreationDate).ToList();
@@ -123,41 +124,52 @@ namespace BusinessServices
 
             foreach (var condition in conditions)
             {
-                if (condition.Equals("L1M", StringComparison.InvariantCultureIgnoreCase))
-                    filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate.AddDays(-30)).ToList();
-                else
-                if (condition.Equals("L7D", StringComparison.InvariantCultureIgnoreCase))
-                    filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate.AddDays(-7)).ToList();
-                else
-                if (condition.Equals("TD", StringComparison.InvariantCultureIgnoreCase))
-                    filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate).ToList();
-                else
-                     if (condition.Equals("ALL", StringComparison.InvariantCultureIgnoreCase))
-                    filteredEnq = allEnq.ToList();
-
+                switch(condition.ToUpper())
+                {
+                    case "L1M": filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate.AddDays(-30)).ToList();
+                        break;
+                    case "L7D":
+                        filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate.AddDays(-7)).ToList();
+                        break;
+                    case "TD":
+                        filteredEnq = allEnq.Where(x => x.CreationDate >= indiaDate).ToList();
+                        break;
+                    case "ALL":
+                        filteredEnq = allEnq.ToList();
+                        break;
+                    //default:
+                    //    filteredEnq = new List<Enquiry>();
+                    //    break;
+                }
+               
                 if (filteredEnq != null)
                 {
-                    var filEq = filteredEnq.Select(x => x.EnquiryPID).ToList();
+                    List<long> filEq = new List<long>();
+                    filEq = filteredEnq.Select(x => x.EnquiryPID).ToList();
                     if (condition.Equals("F3M", StringComparison.InvariantCultureIgnoreCase))
                     {
                         var fe = allEnq.Where(x => x.ExpiryDate <= indiaDate.AddDays(+90) && x.ExpiryDate >= indiaDate).ToList();
+                        filteredEnq = filteredEnq.Where(x => x.ExpiryDate < indiaDate.AddDays(+90)).ToList();
                         filteredEnq.AddRange(fe.Where(x => !filEq.Contains(x.EnquiryPID)).ToList());
                     }
                     if (condition.Equals("F1M", StringComparison.InvariantCultureIgnoreCase))
                     {
                         var fe = allEnq.Where(x => x.ExpiryDate <= indiaDate.AddDays(+30) && x.ExpiryDate >= indiaDate).ToList();
+                        filteredEnq = filteredEnq.Where(x => x.ExpiryDate < indiaDate.AddDays(+30)).ToList();
                         filteredEnq.AddRange(fe.Where(x => !filEq.Contains(x.EnquiryPID)).ToList());
                     }
 
                     if (condition.Equals("F7D", StringComparison.InvariantCultureIgnoreCase))
                     {
                         var fe = allEnq.Where(x => x.ExpiryDate <= indiaDate.AddDays(+7) && x.ExpiryDate >= indiaDate).ToList();
+                        filteredEnq = filteredEnq.Where(x => x.ExpiryDate < indiaDate.AddDays(+7)).ToList();
                         filteredEnq.AddRange(fe.Where(x => !filEq.Contains(x.EnquiryPID)).ToList());
                     }
 
                     if (condition.Equals("MTD", StringComparison.InvariantCultureIgnoreCase))
                     {
                         var fe = allEnq.Where(x => x.ExpiryDate <= indiaDate && x.ExpiryDate >= indiaDate).ToList();
+                        filteredEnq = filteredEnq.Where(x => x.ExpiryDate < indiaDate.AddDays(1)).ToList();
                         filteredEnq.AddRange(fe.Where(x => !filEq.Contains(x.EnquiryPID)).ToList());
                     }
                 }
@@ -201,6 +213,9 @@ namespace BusinessServices
         /// <returns></returns>
         public long CreateEnquiry(BusinessEntities.EnquiryRequestEntity goodsEntity)
         {
+            var user = _unitOfWork.UserRepository.GetMany(x => x.UserPID == goodsEntity.UserId).FirstOrDefault();
+            var userAss = _unitOfWork.UserRepository.GetMany(x => x.UserPID == goodsEntity.AssignedToUserId).FirstOrDefault();
+
             using (var scope = new TransactionScope())
             {
                 //int? nullable = null;
@@ -223,8 +238,21 @@ namespace BusinessServices
                     MaterialTypeFID = goodsEntity.MaterialType,
                     Status = goodsEntity.Status,
                     UserFID = goodsEntity.UserId != 0 ? goodsEntity.UserId : userId,
-                    Comments="",
+                    Comments ="",
                 };
+
+                if (user !=null && user.UserProfiles.FirstOrDefault() != null)
+                {
+                    var name = user.UserProfiles.FirstOrDefault().FirstName;
+                    if (!string.IsNullOrEmpty(name))
+                    {
+                        goods.CreatedBy = name ;
+                    }
+                    if(userAss !=null)
+                    {
+                        goods.AssignedTo = userAss.UserProfiles.FirstOrDefault().FirstName;
+                    }
+                }
 
                 if (!string.IsNullOrEmpty(goodsEntity.MobileNumber))
                     goods.MobileNumber = Convert.ToInt64(goodsEntity.MobileNumber);
@@ -238,7 +266,7 @@ namespace BusinessServices
                 return goods.EnquiryPID;
             }
         }
-
+          
         /// <summary>
         /// Updates a goods
         /// </summary>
@@ -248,6 +276,7 @@ namespace BusinessServices
         public bool UpdateGoods(int goodsId, BusinessEntities.EnquiryRequestEntity goodsEntity)
         {
             var success = false;
+            var user = _unitOfWork.UserRepository.GetMany(x => x.UserPID == goodsEntity.AssignedToUserId).FirstOrDefault();
             if (goodsEntity != null)
             {
                 using (var scope = new TransactionScope())
@@ -276,8 +305,16 @@ namespace BusinessServices
                         if(!string.IsNullOrEmpty(goodsEntity.Comments))
                         goods.Comments = goodsEntity.Comments;
 
-                        if (goodsEntity.UserId !=0)
-                            goods.UserFID = goodsEntity.UserId;
+                        //if (goodsEntity.UserId !=0)
+                        //    goods.UserFID = goodsEntity.UserId;
+                        if (user != null && user.UserProfiles.FirstOrDefault() != null)
+                        {
+                            var name = user.UserProfiles.FirstOrDefault().FirstName;
+                            if (!string.IsNullOrEmpty(name))
+                            {
+                                goods.AssignedTo = name;
+                            }
+                        }
 
                         _unitOfWork.EnquiryRepository.Update(goods);
                         _unitOfWork.Save();
@@ -308,15 +345,16 @@ namespace BusinessServices
                     {
                         foreach (var item in quotations)
                         {
-                            _unitOfWork.QuotationRepository.Delete(item);
+                            item.IsActive = false;
+                           // _unitOfWork.QuotationRepository.Delete(item);
                         }
 
                         foreach (var item in bookings)
                         {
-                            _unitOfWork.BookingRepository.Delete(item);
+                           // _unitOfWork.BookingRepository.Delete(item);
                         }
 
-                        _unitOfWork.EnquiryRepository.Delete(goods);
+                       // _unitOfWork.EnquiryRepository.Delete(goods);
                         _unitOfWork.Save();
                         scope.Complete();
                         success = true;
@@ -350,14 +388,16 @@ namespace BusinessServices
                         Freight = Convert.ToInt32(x.Freight),
                         MaterialType = x.MaterialType.Type,
                         VehicleType = x.VehicleType.Type,
-                        CreationDate = x.CreationDate.ToLongDateString(),
+                        CreationDate = String.Format("{0:ddd, d MMM, yyyy}", x.CreationDate) + ", ByUser- "+ Convert.ToString(x.UserFID),
                         //ImgVehicleType = GenericConstant.IMAGES_BASE_ADDRESS + x.VehicleType.Type.Replace(" ", "") + GenericConstant.IMG_EXT,
                         ImgVehicleType = x.VehicleType.Type.ToLower().Replace(" ", ""),
                         VehicleLength = x.VehicleLength,
                         Status = x.Status,
                         ValidTill = x.ExpiryDate,
                         UserId= Convert.ToInt64(x.UserFID),
-                        Comments =  x.Comments
+                        Comments =  x.Comments,
+                        CreatedBy =x.CreatedBy,
+                        AssignedTo =x.AssignedTo
                     };
                 }
                 ));

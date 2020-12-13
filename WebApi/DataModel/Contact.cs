@@ -31,6 +31,11 @@ namespace DataModel
         public Nullable<int> Rank { get; set; }
         public Nullable<bool> IsActive { get; set; }
         public string VehicleLength { get; set; }
+        public string City { get; set; }
+        public string OtherNumbers { get; set; }
+        public string Comments { get; set; }
+        public string OtherRoadlines { get; set; }
+        public string MainRoadlines { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Contact_RoadLine_Mapping> Contact_RoadLine_Mapping { get; set; }

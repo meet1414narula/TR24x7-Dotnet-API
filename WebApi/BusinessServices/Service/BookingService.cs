@@ -17,23 +17,26 @@ namespace BusinessServices
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEnquiryService _otpService;
+        private readonly IHelperService _helperService;
         private static TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById(GenericConstant.INDIAN_STANDARD_TIME);
 
         /// <summary>
         /// Public constructor.
         /// </summary>
-        public BookingService(IUnitOfWork unitOfWork,IEnquiryService otpService)
+        public BookingService(IUnitOfWork unitOfWork,IEnquiryService otpService,IHelperService helperService)
         {
             _unitOfWork = unitOfWork;
             _otpService = otpService;
+            _helperService = helperService;
         }
 
+        #region Booking service
         /// <summary>
         /// Fetches goods details by id
         /// </summary>
         /// <param name="goodsId"></param>
         /// <returns></returns>
-        public BusinessEntities.QuotationResponseEntity GetGoods(int goodsId)
+        public BusinessEntities.QuotationResponseEntity GetBooking(int goodsId)
         {
             var goods = _unitOfWork.EnquiryRepository.GetByID(goodsId);
             if (goods != null)
@@ -73,10 +76,10 @@ namespace BusinessServices
         /// Fetches all the goodss.
         /// </summary>
         /// <returns></returns>
-        public List<BusinessEntities.BookingResponseEntity> GetAllQuotations(int userId)
+        public List<BusinessEntities.BookingResponseEntity> GetAllBookings(int userId)
         {
             var enquiries = GetEnquiriesByUserAccess(userId);
-            var quotations = _unitOfWork.BookingRepository.GetMany(x=>x.Freight !=null && x.Freight !=0).OrderByDescending(x => x.CreationDate).ToList();
+            var quotations = _unitOfWork.BookingRepository.GetAll().OrderBy(x => x.DOM).ToList();
             if (enquiries.Any() && quotations.Any())
             {
                 return MapQuotations(enquiries,quotations);
@@ -95,7 +98,7 @@ namespace BusinessServices
             return _unitOfWork.EnquiryRepository.GetMany(x => x.UserFID == userId).OrderByDescending(x => x.CreationDate).ToList(); ;
         }
 
-        public List<BusinessEntities.BookingResponseEntity> GetAllQuotations()
+        public List<BusinessEntities.BookingResponseEntity> GetAllBookings()
         {
             var enquiries = _unitOfWork.EnquiryRepository.GetAll().OrderByDescending(x => x.CreationDate).ToList();
             var quotations = _unitOfWork.BookingRepository.GetMany(x => x.Freight != null && x.Freight != 0).OrderByDescending(x => x.CreationDate).ToList();
@@ -110,7 +113,7 @@ namespace BusinessServices
         /// Fetches all the goodss.
         /// </summary>
         /// <returns></returns>
-        public List<BusinessEntities.BookingResponseEntity> GetAllQuotes(QuoteRequestEntity quotationRequestEntity)
+        public List<BusinessEntities.BookingResponseEntity> GetAllBookings(QuoteRequestEntity quotationRequestEntity)
         {
             var enquiries = _unitOfWork.EnquiryRepository.GetMany(x=>x.From.Equals(quotationRequestEntity.From,StringComparison.InvariantCultureIgnoreCase)  && x.To.Equals(quotationRequestEntity.To, StringComparison.InvariantCultureIgnoreCase)).OrderByDescending(x => x.CreationDate).ToList();
             if(!string.IsNullOrEmpty(quotationRequestEntity.VehicleLength))
@@ -131,7 +134,7 @@ namespace BusinessServices
         /// Fetches all the goodss.
         /// </summary>
         /// <returns></returns>
-        public List<BusinessEntities.GoodsResponseEntity> GetGoodsByUser(UserEntity userEntity)
+        public List<BusinessEntities.GoodsResponseEntity> GetBookingsByUser(UserEntity userEntity)
         {
             var goods = _unitOfWork.GoodsRepository.GetMany(x=>x.UserFID==userEntity.UserId).ToList();
             if (goods.Any())
@@ -149,7 +152,7 @@ namespace BusinessServices
         /// </summary>
         /// <param name="goodsEntity"></param>
         /// <returns></returns>
-        public long CreateQuotation(BusinessEntities.BookingRequestEntity goodsEntity)
+        public long CreateBooking(BusinessEntities.BookingRequestEntity goodsEntity)
         {
             Booking goods = null;
             bool quotationFound = false;
@@ -233,7 +236,7 @@ namespace BusinessServices
         /// <param name="goodsId"></param>
         /// <param name="goodsEntity"></param>
         /// <returns></returns>
-        public bool UpdateGoods(int goodsId, BusinessEntities.BookingRequestEntity goodsEntity)
+        public bool UpdateBooking(int goodsId, BusinessEntities.BookingRequestEntity goodsEntity)
         {
             var success = false;
             if (goodsEntity != null)
@@ -293,7 +296,7 @@ namespace BusinessServices
         /// </summary>
         /// <param name="goodsId"></param>
         /// <returns></returns>
-        public bool DeleteGoods(int goodsId)
+        public bool DeleteBooking(int goodsId)
         {
             var success = false;
             if (goodsId > 0)
@@ -315,6 +318,40 @@ namespace BusinessServices
             }
             return success;
         }
+
+        #endregion Booking service
+
+        #region Vehicle service
+        public int AddVehicle(BusinessEntities.VehicleRequestEntity vehicleEntity)
+        {
+            BookedVehicle vehicle = null;
+            using (var scope = new TransactionScope())
+            {
+                vehicle = MapVehicle(vehicleEntity);
+                _unitOfWork.BookedVehicleRepository.Insert(vehicle);
+                _unitOfWork.Save();
+                scope.Complete();
+                return vehicle.BookedVehiclePID;
+            }
+        }
+
+        public List<BusinessEntities.BookedVehicleResponseEntity> GetAllBookedVehicles(int userId)
+        {
+            List<BookedVehicleResponseEntity> bookedVehicleResponseEntities = null;
+            var a = _unitOfWork.BookedVehicleRepository.GetMany(x=>x.IsActive==true).OrderByDescending(x => x.CreationDate).ToList();
+            if (a !=null && a.Any())
+            {
+                bookedVehicleResponseEntities = new List<BookedVehicleResponseEntity>();
+                foreach (var item in a)
+                {
+                    bookedVehicleResponseEntities.Add(MapVehicle(item));
+                }
+                return bookedVehicleResponseEntities;
+            }
+            return bookedVehicleResponseEntities;
+        }
+
+        #endregion Vehicle service
 
         private List<BookingResponseEntity> MapQuotations(List<Enquiry> enquiries, List<Booking> bookings)
         {
@@ -425,6 +462,74 @@ namespace BusinessServices
             }
 
             return comments;
+        }
+
+        private BookedVehicle MapVehicle(VehicleRequestEntity a)
+        {
+            BookedVehicle vehicle = new BookedVehicle
+            {
+                BookingFID=a.BookingId,
+                ALLIndia=false,
+                Comments=a.Comments,
+                CreationDate = _helperService.GetDate(DateTime.Now),
+                DateOfBooking= _helperService.GetDate(a.DateOfBooking),
+                DateOfReaching = _helperService.GetDate(a.DateOfReaching),
+                DateOfMoving = _helperService.GetDate(a.DateOfMoving),
+                DriverName=a.DriverName,
+                DriverNumber=a.DriverNumber,
+                EnquiryId=a.EnquiryId,
+                Freight=Convert.ToInt32(a.VehiclePayment),
+                GRNumber=a.GRNumber,
+                IsActive=true,
+                LabourPayment=a.LabourPayment,
+                LastUpdated = _helperService.GetDate(DateTime.Now,true),
+                OtherPayment=a.OtherPayment,
+                OwnerName=a.OwnerName,
+                OwnerNumber=a.OwnerNumber,
+                Rating=a.Rating,
+                Roadlines=a.Roadlines,
+                TransporterName=a.TransporterName,
+                TransporterNumber=a.TransporterNumber,
+                VehicleLength=a.VehicleLength,
+                VehicleNumber=a.VehicleNumber,
+                VehiclePayment=a.VehiclePayment,
+                VehicleType=a.VehicleType,
+                
+            };
+            return vehicle;
+        }
+
+        private BookedVehicleResponseEntity MapVehicle(BookedVehicle a)
+        {
+            BookedVehicleResponseEntity vehicle = new BookedVehicleResponseEntity
+            {
+                BookingId = Convert.ToInt32(a.BookingFID),
+                ALLIndia = false,
+                Comments = a.Comments,
+                CreationDate = _helperService.GetDate(DateTime.Now),
+                DateOfBooking = Convert.ToDateTime(a.DateOfBooking),
+                DateOfReaching = Convert.ToDateTime(a.DateOfReaching),
+                DateOfMoving = Convert.ToDateTime(a.DateOfMoving),
+                DriverName = a.DriverName,
+                DriverNumber = a.DriverNumber,
+                EnquiryId = Convert.ToInt32(a.EnquiryId),
+                VehiclePayment = Convert.ToString(a.Freight),
+                GRNumber = a.GRNumber,
+                IsActive = true,
+                LabourPayment = a.LabourPayment,
+                LastUpdated = _helperService.GetDate(DateTime.Now, true),
+                OtherPayment = a.OtherPayment,
+                OwnerName = a.OwnerName,
+                OwnerNumber = a.OwnerNumber,
+                Rating = Convert.ToInt32(a.Rating),
+                Roadlines = a.Roadlines,
+                TransporterName = a.TransporterName,
+                TransporterNumber = a.TransporterNumber,
+                VehicleLength = a.VehicleLength,
+                VehicleNumber = a.VehicleNumber,
+                VehicleType = a.VehicleType,
+            };
+            return vehicle;
         }
     }
 }

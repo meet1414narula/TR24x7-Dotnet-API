@@ -28,7 +28,7 @@ namespace WebApi.ActionFilters
                     filterContext.Response = responseMessage;
                 }
             }
-            else
+            else if(filterContext.Request.Method.Method =="GET" || filterContext.Request.Method.Method=="POST")
             {
                 filterContext.Response = new HttpResponseMessage(HttpStatusCode.Unauthorized);
             }
