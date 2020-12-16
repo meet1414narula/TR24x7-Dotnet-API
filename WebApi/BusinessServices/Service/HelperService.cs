@@ -151,7 +151,7 @@ namespace BusinessServices
                     return new UserDetailsEntity
                     {
                         Id = Convert.ToInt32(x.UserPID),
-                        Mobile= Convert.ToString(x.MobileNumber),
+                        Mobile= x.UserProfiles != null && x.UserProfiles.Any() ? Convert.ToString(x.UserProfiles.FirstOrDefault().FirstName) : Convert.ToString(x.MobileNumber),
                     };
                 }
                 ));

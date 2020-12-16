@@ -133,7 +133,7 @@ namespace WebApi.Controllers
             {
                 return Request.CreateResponse(HttpStatusCode.OK);
             }
-            goodsEntity.BookingId = bookingId;
+            goodsEntity.EnquiryId = bookingId;
             var success = _goodsServices.AddVehicle(goodsEntity);
             var response = Request.CreateResponse(HttpStatusCode.OK, success);
             return response;

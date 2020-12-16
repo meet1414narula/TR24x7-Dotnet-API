@@ -83,7 +83,8 @@ namespace BusinessEntities
 
     public class BookedVehicleResponseEntity : VehicleRequestEntity
     {
-        
+        public string From { get; set; }
+        public string To { get; set; }
     }
 
 

@@ -341,10 +341,12 @@ namespace BusinessServices
             var a = _unitOfWork.BookedVehicleRepository.GetMany(x=>x.IsActive==true).OrderByDescending(x => x.CreationDate).ToList();
             if (a !=null && a.Any())
             {
+                var eIds = a.Select(x => x.EnquiryId).ToList();
+                var e = _unitOfWork.EnquiryRepository.GetMany(x => eIds.Contains(Convert.ToInt32(x.EnquiryPID))).ToList();
                 bookedVehicleResponseEntities = new List<BookedVehicleResponseEntity>();
                 foreach (var item in a)
                 {
-                    bookedVehicleResponseEntities.Add(MapVehicle(item));
+                    bookedVehicleResponseEntities.Add(MapVehicle(item,e));
                 }
                 return bookedVehicleResponseEntities;
             }
@@ -466,9 +468,10 @@ namespace BusinessServices
 
         private BookedVehicle MapVehicle(VehicleRequestEntity a)
         {
+           
             BookedVehicle vehicle = new BookedVehicle
             {
-                BookingFID=a.BookingId,
+               // BookingFID=a.BookingId,
                 ALLIndia=false,
                 Comments=a.Comments,
                 CreationDate = _helperService.GetDate(DateTime.Now),
@@ -477,7 +480,7 @@ namespace BusinessServices
                 DateOfMoving = _helperService.GetDate(a.DateOfMoving),
                 DriverName=a.DriverName,
                 DriverNumber=a.DriverNumber,
-                EnquiryId=a.EnquiryId,
+                EnquiryId=Convert.ToInt32(a.EnquiryId),
                 Freight=Convert.ToInt32(a.VehiclePayment),
                 GRNumber=a.GRNumber,
                 IsActive=true,
@@ -499,8 +502,9 @@ namespace BusinessServices
             return vehicle;
         }
 
-        private BookedVehicleResponseEntity MapVehicle(BookedVehicle a)
+        private BookedVehicleResponseEntity MapVehicle(BookedVehicle a, List<Enquiry> e)
         {
+            var eq = e.Where(x => x.EnquiryPID == a.EnquiryId).FirstOrDefault();
             BookedVehicleResponseEntity vehicle = new BookedVehicleResponseEntity
             {
                 BookingId = Convert.ToInt32(a.BookingFID),
@@ -513,6 +517,7 @@ namespace BusinessServices
                 DriverName = a.DriverName,
                 DriverNumber = a.DriverNumber,
                 EnquiryId = Convert.ToInt32(a.EnquiryId),
+               
                 VehiclePayment = Convert.ToString(a.Freight),
                 GRNumber = a.GRNumber,
                 IsActive = true,
@@ -529,6 +534,12 @@ namespace BusinessServices
                 VehicleNumber = a.VehicleNumber,
                 VehicleType = a.VehicleType,
             };
+
+            if(eq !=null)
+            {
+                vehicle.From = eq.From;
+                vehicle.To = eq.To;
+            }
             return vehicle;
         }
     }
